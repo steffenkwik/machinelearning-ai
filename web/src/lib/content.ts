@@ -109,6 +109,7 @@ export const ETHICS = [
   { icon: "🛡️", title: "Safety", desc: "Disclaimer jelas: bukan diagnosis medis. Kasus berat diarahkan ke fasilitas kesehatan." },
   { icon: "🌐", title: "Accessibility", desc: "Gratis, mobile-friendly, mendukung SDG #3 Good Health & Well-being." },
   { icon: "📚", title: "Edukatif", desc: "Menampilkan Z-Score WHO & catatan faktor risiko agar pengguna paham konteks." },
+  { icon: "🧪", title: "Eksperimental & Jujur", desc: "Fitur analisis foto bersifat eksperimental, berjalan di perangkat, dan hanya menyesuaikan hasil dengan bobot dibatasi (maks ±10%) — model Random Forest tidak diubah, dan perubahan selalu ditampilkan sebelum→sesudah." },
 ];
 
 export const FAIRNESS_AUDIT = [

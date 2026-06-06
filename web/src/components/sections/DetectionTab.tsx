@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   Baby,
+  Camera,
   HeartPulse,
   Info,
   Loader2,
-  Ruler,
   ScanSearch,
   Sparkles,
   Stethoscope,
@@ -26,6 +26,12 @@ import {
 import { predict, type PredictResult } from "@/lib/model";
 import { hazZScore, whoStats, type Sex } from "@/lib/who";
 import { STATUS_CONFIG } from "@/lib/content";
+import { PhotoAnalysis } from "@/components/sections/PhotoAnalysis";
+import { fuse, type FusionResult } from "@/lib/fusion";
+import type { PhotoSignal } from "@/lib/pose";
+
+const stuntMass = (probs: { status: string; p: number }[]) =>
+  probs.filter((x) => x.status === "Stunted" || x.status === "Severely Stunted").reduce((s, x) => s + x.p, 0);
 
 const TONE_STYLES: Record<string, string> = {
   normal: "from-emerald-500 to-emerald-800",
@@ -45,9 +51,11 @@ export function DetectionTab() {
   const [usiaIbuMenikah, setUsiaIbuMenikah] = useState(23);
   const [giziIbu, setGiziIbu] = useState<"Baik" | "Sedang" | "Buruk">("Baik");
 
+  const [photoSignal, setPhotoSignal] = useState<PhotoSignal | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<PredictResult | null>(null);
+  const [rf, setRf] = useState<PredictResult | null>(null);
+  const [fused, setFused] = useState<FusionResult | null>(null);
   const [snapshot, setSnapshot] = useState<any>(null);
 
   const [refHeight] = useMemo(() => whoStats(umur, jenisKelamin), [umur, jenisKelamin]);
@@ -66,9 +74,11 @@ export function DetectionTab() {
         usiaIbuMenikah,
         giziIbu,
       });
+      const f = fuse(res, photoSignal);
       const z = hazZScore(umur, jenisKelamin, tinggi);
-      setResult(res);
-      setSnapshot({ nama, umur, jenisKelamin, tinggi, berat, effJarak, usiaIbuMenikah, giziIbu, z, refHeight });
+      setRf(res);
+      setFused(f);
+      setSnapshot({ nama, umur, jenisKelamin, tinggi, berat, effJarak, usiaIbuMenikah, giziIbu, z, refHeight, photo: photoSignal });
       setTimeout(() => document.getElementById("hasil")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
     } catch (e: any) {
       setError("Gagal memuat model AI. Periksa koneksi lalu coba lagi.");
@@ -152,6 +162,8 @@ export function DetectionTab() {
           </div>
         </SectionCard>
 
+        <PhotoAnalysis onSignal={setPhotoSignal} />
+
         <div className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-800">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
           <span>
@@ -180,8 +192,8 @@ export function DetectionTab() {
 
       {/* ───────── RESULT ───────── */}
       <div className="lg:col-span-2" id="hasil">
-        {result && snapshot ? (
-          <ResultPanel result={result} s={snapshot} />
+        {fused && rf && snapshot ? (
+          <ResultPanel fused={fused} rf={rf} s={snapshot} />
         ) : (
           <EmptyState />
         )}
@@ -190,9 +202,11 @@ export function DetectionTab() {
   );
 }
 
-function ResultPanel({ result, s }: { result: PredictResult; s: any }) {
-  const cfg = STATUS_CONFIG[result.status];
+function ResultPanel({ fused, rf, s }: { fused: FusionResult; rf: PredictResult; s: any }) {
+  const cfg = STATUS_CONFIG[fused.status];
   const notes = buildRiskNotes(s);
+  const rfStunt = stuntMass(rf.probabilities);
+  const fusedStunt = stuntMass(fused.probabilities);
   return (
     <div className="space-y-4 animate-fade-up lg:sticky lg:top-6">
       <div className={`rounded-3xl bg-gradient-to-br ${TONE_STYLES[cfg.tone]} p-6 text-center text-white shadow-xl`}>
@@ -200,15 +214,37 @@ function ResultPanel({ result, s }: { result: PredictResult; s: any }) {
         <h2 className="mt-2 text-xl font-extrabold tracking-tight">{cfg.title}</h2>
         <p className="mt-1 text-sm text-white/85">{cfg.desc}</p>
         <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-bold backdrop-blur">
-          <Sparkles className="h-4 w-4" /> Keyakinan AI: {(result.confidence * 100).toFixed(1)}%
+          <Sparkles className="h-4 w-4" /> Keyakinan AI: {(fused.confidence * 100).toFixed(1)}%
         </div>
       </div>
 
+      {fused.applied && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-emerald-900">
+            <Camera className="h-4 w-4 text-emerald-600" /> Penyesuaian dari Analisis Foto
+          </p>
+          <div className="mt-2 flex items-center justify-center gap-3 text-sm">
+            <span className="text-muted-foreground">Risiko stunting (RF)</span>
+            <span className="font-bold text-emerald-800">{(rfStunt * 100).toFixed(1)}%</span>
+            <span className="text-emerald-500">→</span>
+            <span className="font-bold text-emerald-900">{(fusedStunt * 100).toFixed(1)}%</span>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${fusedStunt >= rfStunt ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+              {fusedStunt >= rfStunt ? "▲" : "▼"} {(Math.abs(fusedStunt - rfStunt) * 100).toFixed(1)} pt
+            </span>
+          </div>
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            Build foto: <b>{s.photo?.build}</b> · bobot dibatasi maks ±10% · model RF tidak diubah.
+          </p>
+        </div>
+      )}
+
       <Card>
         <CardContent className="space-y-4 p-5">
-          <h4 className="text-sm font-bold text-emerald-900">📊 Probabilitas Tiap Kategori</h4>
+          <h4 className="text-sm font-bold text-emerald-900">
+            📊 Probabilitas Tiap Kategori {fused.applied && <span className="font-normal text-muted-foreground">(setelah fusi foto)</span>}
+          </h4>
           <div className="space-y-3">
-            {result.probabilities.map((p) => (
+            {fused.probabilities.map((p) => (
               <div key={p.status}>
                 <div className="mb-1 flex justify-between text-xs font-semibold text-emerald-800">
                   <span>{p.status}</span>

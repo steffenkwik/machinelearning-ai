@@ -3,3 +3,6 @@ dist
 *.local
 .DS_Store
 .vite
+
+# MediaPipe wasm is copied from node_modules at build time (see scripts/copy-mediapipe.mjs)
+public/mediapipe
