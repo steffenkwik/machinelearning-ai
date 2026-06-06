@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light "clinical" body theme */
+    --background: 150 33% 98%;
+    --foreground: 158 45% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 158 45% 11%;
+    --primary: 158 84% 32%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 152 40% 94%;
+    --secondary-foreground: 158 60% 18%;
+    --muted: 152 30% 95%;
+    --muted-foreground: 158 12% 42%;
+    --accent: 152 45% 92%;
+    --accent-foreground: 158 60% 18%;
+    --border: 152 28% 88%;
+    --input: 152 28% 86%;
+    --ring: 158 84% 39%;
+    --radius: 0.9rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image: radial-gradient(
+        circle at 12% 0%,
+        hsl(152 60% 92%) 0%,
+        transparent 38%
+      ),
+      radial-gradient(circle at 92% 8%, hsl(158 55% 90%) 0%, transparent 32%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: hsl(158 84% 39% / 0.25);
+  }
+}
+
+@layer components {
+  /* Dark futuristic hero surface */
+  .hero-surface {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(16, 185, 129, 0.22), transparent 42%),
+      radial-gradient(circle at 84% 12%, rgba(45, 212, 191, 0.16), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(5, 150, 105, 0.28), transparent 55%),
+      linear-gradient(160deg, #021b13 0%, #04261b 45%, #021410 100%);
+  }
+
+  .grid-overlay {
+    background-image: linear-gradient(rgba(52, 211, 153, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(52, 211, 153, 0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(circle at 50% 35%, black, transparent 78%);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(167, 243, 208, 0.18);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 32px rgba(52, 211, 153, 0.55);
+  }
+
+  .neon-ring {
+    box-shadow:
+      0 0 0 1px rgba(52, 211, 153, 0.25),
+      0 0 40px -8px rgba(16, 185, 129, 0.6);
+  }
+
+  .card-elevated {
+    @apply rounded-2xl border border-border bg-card shadow-[0_4px_24px_-8px_rgba(5,80,55,0.18)];
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400 bg-clip-text text-transparent;
+  }
+}
+
+/* Recharts tweaks */
+.recharts-cartesian-axis-tick-value {
+  font-size: 12px;
+}
