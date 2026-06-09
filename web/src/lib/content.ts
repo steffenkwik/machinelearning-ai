@@ -128,6 +128,7 @@ export const ETHICS = [
   { title: "Keamanan", body: "Disclaimer jelas: hasil adalah skrining awal, bukan diagnosis medis. Kasus berat diarahkan ke fasilitas kesehatan." },
   { title: "Aksesibilitas", body: "Gratis, ringan, mobile-friendly, dan dapat berjalan offline. Mendukung SDG #3 Good Health & Well-being." },
   { title: "Edukatif", body: "Menampilkan Z-Score WHO dan konteks faktor risiko agar pengguna memahami hasilnya, bukan sekadar label." },
+  { title: "Eksperimental & Jujur", body: "Fitur analisis foto memperkirakan proporsi tubuh (wasting/overweight), BUKAN tinggi/stunting yang tak bisa diukur dari foto 2D. Pengaruhnya ke hasil dibatasi (maks ±10 poin), ditampilkan sebelum→sesudah, dan Random Forest tidak dilatih ulang." },
 ];
 
 export const REFERENCES = [
