@@ -6,3 +6,6 @@ dist-ssr
 .vite
 node_modules/.tmp
 *.tsbuildinfo
+
+# MediaPipe WASM copied at build time
+public/mediapipe/wasm

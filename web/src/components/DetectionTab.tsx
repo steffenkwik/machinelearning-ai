@@ -19,9 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, SegmentItem } from "@/components/ui/radio-group";
 import { ResultPanel, type AnalysisResult } from "@/components/ResultPanel";
+import { PhotoAnalysis } from "@/components/PhotoAnalysis";
 import { STATUS_ORDER } from "@/lib/content";
 import { toFeatureVector, type FormValues, type GiziIbu } from "@/lib/encode";
 import { hazZScore, whoStats, type Sex } from "@/lib/who";
+import { fuse, type PhotoSignal } from "@/lib/fusion";
 import type { ModelStatus } from "@/inference/useModel";
 import type { PredictionResult } from "@/inference/useModel";
 
@@ -65,6 +67,7 @@ export function DetectionTab({ status, predict }: Props) {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [photoSignal, setPhotoSignal] = useState<PhotoSignal | null>(null);
 
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -80,14 +83,22 @@ export function DetectionTab({ status, predict }: Props) {
     try {
       const vector = toFeatureVector(values);
       const { label, probabilities } = await predict(vector);
-      const confidence = (probabilities[label] ?? Math.max(...probabilities)) * 100;
       const zScore = hazZScore(values.umur, values.jenisKelamin, values.tinggi);
+
+      // Optional transparent fusion with the photo build signal.
+      const fusion = photoSignal?.available ? fuse(probabilities, photoSignal) : null;
+      const finalProbs = fusion ? fusion.after : probabilities;
+      const topIdx = finalProbs.indexOf(Math.max(...finalProbs));
+      const confidence = (finalProbs[topIdx] ?? probabilities[label]) * 100;
+
       setResult({
-        status: STATUS_ORDER[label] ?? STATUS_ORDER[0],
+        status: STATUS_ORDER[topIdx] ?? STATUS_ORDER[label] ?? STATUS_ORDER[0],
         confidence,
-        probabilities,
+        probabilities: finalProbs,
         zScore,
         values,
+        fusion: fusion ?? undefined,
+        photoBuild: photoSignal?.available ? photoSignal.build : undefined,
       });
     } catch (e) {
       setErrMsg(e instanceof Error ? e.message : "Analisis gagal. Coba lagi.");
@@ -271,6 +282,8 @@ export function DetectionTab({ status, predict }: Props) {
             <strong>{refHeight.toFixed(1)} cm</strong>.
           </p>
         </div>
+
+        <PhotoAnalysis onSignal={setPhotoSignal} />
 
         <Button
           size="lg"

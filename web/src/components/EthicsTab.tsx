@@ -5,12 +5,13 @@ import {
   ShieldCheck,
   Accessibility,
   BookOpen,
+  FlaskConical,
   CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ETHICS, FAIRNESS_ROWS } from "@/lib/content";
 
-const ICONS = [Lock, Scale, Eye, ShieldCheck, Accessibility, BookOpen];
+const ICONS = [Lock, Scale, Eye, ShieldCheck, Accessibility, BookOpen, FlaskConical];
 
 export function EthicsTab() {
   return (
