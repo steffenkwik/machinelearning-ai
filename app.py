@@ -18,6 +18,9 @@ Cara menjalankan:
 ═══════════════════════════════════════════════════════════════════
 """
 
+import warnings
+warnings.filterwarnings("ignore")  # sembunyikan peringatan versi sklearn/pandas saat demo
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -144,6 +147,18 @@ def who_stats(age, sex):
 def haz_zscore(age, sex, height):
     m,s = who_stats(age,sex); return (height-m)/s
 
+# WHO median berat badan (kg) per usia — untuk catatan faktor risiko berat badan
+WT_BOYS = {0:3.3,6:7.9,12:9.6,18:10.9,24:12.2,30:13.3,36:14.3,42:15.3,48:16.3,54:17.3,60:18.3}
+WT_GIRLS = {0:3.2,6:7.3,12:8.9,18:10.2,24:11.5,30:12.7,36:13.9,42:15.0,48:16.1,54:17.2,60:18.2}
+def who_wt(age, sex):
+    tbl = WT_BOYS if sex=='laki-laki' else WT_GIRLS
+    age = min(int(age),60); ks = sorted(tbl)
+    for i in range(len(ks)-1):
+        if ks[i] <= age <= ks[i+1]:
+            lo,hi = ks[i],ks[i+1]; f = (age-lo)/(hi-lo) if hi>lo else 0
+            return tbl[lo] + f*(tbl[hi]-tbl[lo])
+    return tbl[60]
+
 @st.cache_resource
 def load_model():
     try:
@@ -156,6 +171,10 @@ def load_model():
         st.error(f"❌ File model tidak ditemukan: {e}")
         st.info("Pastikan model_stunting.pkl, encoder_jenis_kelamin.pkl, "
                 "encoder_gizi_ibu.pkl, dan encoder_status.pkl ada di folder yang sama dengan app.py")
+        st.stop()
+    except Exception as e:  # mis. mismatch versi library — tampilkan pesan ramah, bukan crash merah
+        st.error("❌ Gagal memuat model AI.")
+        st.info(f"Detail: {e}\n\nCoba jalankan ulang: pip install -r requirements.txt")
         st.stop()
 
 model, encoder_sex, encoder_nutri, encoder_status = load_model()
@@ -262,7 +281,8 @@ with tab1:
     ref_height, ref_sd = who_stats(umur, jenis_kelamin)
     st.info(f"📊 **Referensi WHO**: Median tinggi anak {umur} bulan ({jenis_kelamin}) = **{ref_height:.1f} cm**")
 
-    if st.button("🔍 ANALISIS RISIKO STUNTING (7 FAKTOR)", use_container_width=True):
+    if st.button("🔍 ANALISIS RISIKO STUNTING (7 FAKTOR)", width="stretch"):
+      try:
         sex_enc = encoder_sex.transform([jenis_kelamin])[0]
         nutri_enc = encoder_nutri.transform([gizi_ibu])[0]
         input_data = pd.DataFrame({
@@ -274,7 +294,7 @@ with tab1:
             'Usia Ibu Menikah (tahun)': [usia_ibu_menikah],
             'Gizi_Ibu_Enc': [nutri_enc],
         })
-        prediction = model.predict(input_data)[0]
+        prediction = int(model.predict(input_data)[0])
         probabilities = model.predict_proba(input_data)[0]
         status = encoder_status.inverse_transform([prediction])[0]
         confidence = probabilities[prediction] * 100
@@ -332,8 +352,7 @@ with tab1:
             # Analisis faktor risiko
             st.markdown("#### 🔬 Catatan Faktor Risiko")
             notes = []
-            if berat < who_stats(umur,jenis_kelamin)[0]*0.0:  # placeholder
-                pass
+            if berat < who_wt(umur, jenis_kelamin) * 0.80: notes.append("⚠️ Berat badan di bawah standar usia (risiko gizi kurang)")
             if jarak_kehamilan>0 and jarak_kehamilan<24: notes.append("⚠️ Jarak kehamilan < 24 bln (ideal >24)")
             if usia_ibu_menikah<20: notes.append("⚠️ Ibu menikah usia dini (<20 thn)")
             if gizi_ibu=='Buruk': notes.append("⚠️ Gizi ibu saat hamil buruk (risiko KEK)")
@@ -350,6 +369,9 @@ with tab1:
         st.warning("""⚠️ **DISCLAIMER PENTING:** Hasil ini adalah **alat skrining awal**, BUKAN diagnosis medis.
         Akurasi model 88,40% pada test set. Selalu konsultasikan dengan **dokter anak atau ahli gizi**
         untuk diagnosis dan penanganan yang tepat.""")
+      except Exception as e:
+        st.error("❌ Terjadi kesalahan saat menganalisis. Silakan periksa input lalu coba lagi.")
+        st.info(f"Detail teknis: {e}")
 
 # ═════════════════════════════════════════════════════════════
 # TAB 2: TENTANG PROJECT
@@ -431,8 +453,8 @@ with tab3:
         'Parameter': ['Algoritma','Jumlah Fitur','Jumlah Trees','Max Depth','Training Data',
                       'Test Accuracy','F1-Score (Macro)','Cross-Validation','Dataset Total'],
         'Nilai': ['Random Forest Classifier','7 faktor','120 trees','14 levels','20.000 sampel (80%)',
-                  '88,40%','83,56%','87,31% ± 0,42%','25.000 sampel']
-    }), use_container_width=True, hide_index=True)
+                  '88,40%','83,56%','84,11% ± 0,23%','25.000 sampel']
+    }), width="stretch", hide_index=True)
 
     st.markdown("#### 📚 Referensi")
     st.markdown("""- **Breiman, L. (2001)**. Random Forests. *Machine Learning, 45(1), 5-32*.
@@ -466,7 +488,7 @@ with tab4:
         'Akurasi': ['89,30%','87,46%','1,83%'],
         'F1-Score': ['85,13%','81,92%','3,21%'],
         'Status': ['✅ Fair','✅ Fair','✅ < 5%']
-    }), use_container_width=True, hide_index=True)
+    }), width="stretch", hide_index=True)
 
 # FOOTER
 st.markdown("---")

@@ -34,7 +34,7 @@
 | **F1-Score (Macro)** | 83,56% |
 | **Precision** | 81,59% |
 | **Recall** | 85,93% |
-| **Cross-Validation** | 87,31% ± 0,42% |
+| **Cross-Validation** | 84,11% ± 0,23% |
 | **Fairness Disparity** | 1,83% (antar gender) |
 | **Model Size** | 9 MB |
 | **Dataset** | 25.000 sampel |
