@@ -69,22 +69,34 @@ st.markdown("""
 
     /* HEADER */
     .main-header {
-        background: linear-gradient(135deg, #014A2F 0%, #06A357 60%, #2ECC71 100%);
-        padding: 2.4rem 2rem; border-radius: 22px; margin-bottom: 1rem;
-        box-shadow: 0 10px 30px rgba(1,74,47,0.28); position: relative; overflow: hidden;
+        background: linear-gradient(135deg, #013220 0%, #06A357 55%, #2ECC71 100%);
+        padding: 2.6rem 2.2rem; border-radius: 24px; margin-bottom: 1rem;
+        box-shadow: 0 14px 38px rgba(1,74,47,0.34); position: relative; overflow: hidden;
     }
     .main-header::after { content:""; position:absolute; right:-40px; top:-40px;
-        width:180px; height:180px; background:rgba(255,255,255,0.08); border-radius:50%; }
-    .main-header h1 { color: #fff !important; margin:0; font-size: 2.15rem; font-weight: 800; line-height:1.2; }
-    .main-header p { color: #d4f5e2 !important; margin-top: 0.6rem; font-size: 1.05rem; }
-    .sdg-badge { display:inline-block; background:rgba(255,255,255,0.2); color:#fff !important;
-        padding:5px 14px; border-radius:20px; font-size:0.82rem; font-weight:700; margin-top:0.8rem; }
+        width:220px; height:220px; background:rgba(255,255,255,0.10); border-radius:50%; }
+    .main-header::before { content:""; position:absolute; right:90px; bottom:-70px;
+        width:150px; height:150px; background:rgba(255,255,255,0.06); border-radius:50%; }
+    .main-header h1 { color: #fff !important; margin:0; font-size: 2.3rem; font-weight: 800; line-height:1.18;
+        letter-spacing:-0.5px; text-shadow:0 2px 8px rgba(0,0,0,0.18); position:relative; }
+    .main-header p { color: #e6fff1 !important; margin-top: 0.7rem; font-size: 1.08rem; position:relative; }
+    .sdg-badge { display:inline-block; background:rgba(255,255,255,0.22); color:#fff !important;
+        padding:6px 16px; border-radius:20px; font-size:0.84rem; font-weight:700; margin-top:1rem;
+        border:1px solid rgba(255,255,255,0.35); backdrop-filter:blur(4px); position:relative; }
 
     /* AUTHOR RIBBON */
     .author-ribbon { background: linear-gradient(135deg, #FF8500 0%, #FFB400 100%);
-        padding: 0.8rem 1.4rem; border-radius: 14px; margin-bottom: 1.6rem;
-        box-shadow: 0 6px 16px rgba(255,133,0,0.28); }
-    .author-ribbon span { color: #fff !important; font-weight: 700; font-size: 1rem; }
+        padding: 0.85rem 1.5rem; border-radius: 14px; margin-bottom: 1.6rem;
+        box-shadow: 0 8px 20px rgba(255,133,0,0.30); }
+    .author-ribbon span { color: #fff !important; font-weight: 700; font-size: 1rem; text-shadow:0 1px 3px rgba(0,0,0,0.15); }
+
+    /* SIDEBAR METRIC CARDS (custom, anti-terpotong) */
+    .sb-metrics { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:8px; }
+    .sb-metric { background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18);
+        border-radius:13px; padding:11px 6px; text-align:center; transition:all 0.2s; }
+    .sb-metric:hover { background:rgba(255,255,255,0.15); transform:translateY(-2px); }
+    .sb-val { color:#FFD37A !important; font-weight:800; font-size:1.32rem; line-height:1.05; letter-spacing:-0.5px; }
+    .sb-lab { color:#cdeedd !important; font-size:0.74rem; margin-top:3px; font-weight:600; }
 
     /* CARDS */
     .info-card { background: #fff; padding: 1.5rem; border-radius: 16px;
@@ -100,9 +112,14 @@ st.markdown("""
 
     /* CONTAINER BORDER (st.container(border=True)) → tampil seperti kartu */
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background:#ffffff !important; border:1px solid #cdeedd !important;
-        border-radius:16px !important; padding:1.2rem 1.4rem !important;
-        box-shadow:0 4px 16px rgba(1,74,47,0.08) !important; margin-bottom:0.6rem !important;
+        background:linear-gradient(180deg,#ffffff 0%, #fbfffc 100%) !important;
+        border:1px solid #cdeedd !important; border-left:5px solid #06A357 !important;
+        border-radius:16px !important; padding:1.3rem 1.5rem !important;
+        box-shadow:0 6px 20px rgba(1,74,47,0.09) !important; margin-bottom:0.8rem !important;
+        transition:box-shadow 0.2s, transform 0.2s !important;
+    }
+    [data-testid="stVerticalBlockBorderWrapper"]:hover {
+        box-shadow:0 10px 28px rgba(1,74,47,0.14) !important; transform:translateY(-2px);
     }
 
     /* RESULT CARDS */
@@ -208,13 +225,14 @@ Kelas: LA05-LEC""")
 **Universitas:** BINUS University""")
     st.markdown("---")
     st.markdown("### 📊 Performa Model")
-    c1,c2 = st.columns(2)
-    with c1:
-        st.metric("Accuracy", "88.40%")
-        st.metric("Precision", "81.59%")
-    with c2:
-        st.metric("F1-Score", "83.56%")
-        st.metric("Recall", "85.93%")
+    st.markdown("""
+    <div class="sb-metrics">
+      <div class="sb-metric"><div class="sb-val">88.40%</div><div class="sb-lab">Accuracy</div></div>
+      <div class="sb-metric"><div class="sb-val">83.56%</div><div class="sb-lab">F1-Score</div></div>
+      <div class="sb-metric"><div class="sb-val">81.59%</div><div class="sb-lab">Precision</div></div>
+      <div class="sb-metric"><div class="sb-val">85.93%</div><div class="sb-lab">Recall</div></div>
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("### 🧬 7 Faktor Penyebab")
     st.markdown("""1. Umur anak  
