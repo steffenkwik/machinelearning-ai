@@ -1,0 +1,9 @@
+# Vendored skill copies (restorable from skills-lock.json via
+# `npx skills experimental_install`) — treated like node_modules.
+.claude/
+.agents/
+
+# Python / build artifacts
+__pycache__/
+*.pyc
+.venv/
