@@ -1,0 +1,8 @@
+# Cloudflare Pages headers
+# The model and WASM runtime are large but immutable — cache them hard.
+/model_stunting.onnx
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/octet-stream
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
