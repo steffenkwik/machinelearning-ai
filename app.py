@@ -95,8 +95,15 @@ st.markdown("""
     /* SECTION CARD untuk input */
     .section-card { background:#fff; padding:1.3rem 1.5rem; border-radius:16px;
         box-shadow:0 4px 16px rgba(1,74,47,0.07); margin-bottom:1rem; }
-    .section-title { color:#014A2F !important; font-weight:800; font-size:1.05rem;
-        border-bottom:2px solid #e3f5ea; padding-bottom:0.5rem; margin-bottom:0.8rem; }
+    .section-title { color:#014A2F !important; font-weight:800; font-size:1.15rem;
+        border-bottom:2px solid #e3f5ea; padding-bottom:0.5rem; margin-bottom:0.3rem; }
+
+    /* CONTAINER BORDER (st.container(border=True)) → tampil seperti kartu */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background:#ffffff !important; border:1px solid #cdeedd !important;
+        border-radius:16px !important; padding:1.2rem 1.4rem !important;
+        box-shadow:0 4px 16px rgba(1,74,47,0.08) !important; margin-bottom:0.6rem !important;
+    }
 
     /* RESULT CARDS */
     .result-normal { background:linear-gradient(135deg,#28A745,#014A2F); padding:2rem; border-radius:20px; text-align:center; box-shadow:0 8px 24px rgba(40,167,69,0.32); }
@@ -247,36 +254,36 @@ with tab1:
     st.markdown("Isi **7 faktor** berikut untuk prediksi risiko stunting yang komprehensif:")
 
     # Bagian 1: Data Anak
-    st.markdown('<div class="section-card"><div class="section-title">👶 Data Anak</div>', unsafe_allow_html=True)
-    ca1, ca2 = st.columns(2)
-    with ca1:
-        nama_anak = st.text_input("Nama Anak (opsional)", placeholder="Contoh: Adi")
-        umur = st.number_input("📅 Umur Anak (bulan)", 0, 60, 24, 1, help="Usia 0-60 bulan")
-        jenis_kelamin = st.radio("⚧ Jenis Kelamin", ['laki-laki','perempuan'], horizontal=True)
-    with ca2:
-        tinggi = st.number_input("📐 Tinggi Badan (cm)", 30.0, 130.0, 85.0, 0.1)
-        berat = st.number_input("⚖️ Berat Badan (kg)", 2.0, 30.0, 11.0, 0.1, help="Berat badan anak saat ini")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-title">👶 Data Anak</div>', unsafe_allow_html=True)
+        ca1, ca2 = st.columns(2)
+        with ca1:
+            nama_anak = st.text_input("Nama Anak (opsional)", placeholder="Contoh: Adi")
+            umur = st.number_input("📅 Umur Anak (bulan)", 0, 60, 24, 1, help="Usia 0-60 bulan")
+            jenis_kelamin = st.radio("⚧ Jenis Kelamin", ['laki-laki','perempuan'], horizontal=True)
+        with ca2:
+            tinggi = st.number_input("📐 Tinggi Badan (cm)", 30.0, 130.0, 85.0, 0.1)
+            berat = st.number_input("⚖️ Berat Badan (kg)", 2.0, 30.0, 11.0, 0.1, help="Berat badan anak saat ini")
 
     # Bagian 2: Data Ibu / Kehamilan
-    st.markdown('<div class="section-card"><div class="section-title">🤰 Data Ibu & Riwayat Kehamilan</div>', unsafe_allow_html=True)
-    cb1, cb2, cb3 = st.columns(3)
-    with cb1:
-        anak_pertama = st.radio("Apakah anak pertama?", ['Ya','Tidak'], horizontal=True,
-                                help="Jika Ya, jarak kehamilan dianggap 0")
-        if anak_pertama == 'Tidak':
-            jarak_kehamilan = st.number_input("👶 Jarak dari anak sebelumnya (bulan)", 6, 72, 24, 1,
-                                              help="Ideal > 24 bulan")
-        else:
-            jarak_kehamilan = 0
-            st.caption("Jarak kehamilan = 0 (anak pertama)")
-    with cb2:
-        usia_ibu_menikah = st.number_input("💍 Usia Ibu Saat Menikah (tahun)", 14, 45, 23, 1,
-                                           help="Ideal 20-35 tahun")
-    with cb3:
-        gizi_ibu = st.selectbox("🍎 Gizi Ibu Saat Hamil", ['Baik','Sedang','Buruk'],
-                                help="Status gizi ibu selama kehamilan")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-title">🤰 Data Ibu &amp; Riwayat Kehamilan</div>', unsafe_allow_html=True)
+        cb1, cb2, cb3 = st.columns(3)
+        with cb1:
+            anak_pertama = st.radio("Apakah anak pertama?", ['Ya','Tidak'], horizontal=True,
+                                    help="Jika Ya, jarak kehamilan dianggap 0")
+            if anak_pertama == 'Tidak':
+                jarak_kehamilan = st.number_input("👶 Jarak dari anak sebelumnya (bulan)", 6, 72, 24, 1,
+                                                  help="Ideal > 24 bulan")
+            else:
+                jarak_kehamilan = 0
+                st.caption("Jarak kehamilan = 0 (anak pertama)")
+        with cb2:
+            usia_ibu_menikah = st.number_input("💍 Usia Ibu Saat Menikah (tahun)", 14, 45, 23, 1,
+                                               help="Ideal 20-35 tahun")
+        with cb3:
+            gizi_ibu = st.selectbox("🍎 Gizi Ibu Saat Hamil", ['Baik','Sedang','Buruk'],
+                                    help="Status gizi ibu selama kehamilan")
 
     ref_height, ref_sd = who_stats(umur, jenis_kelamin)
     st.info(f"📊 **Referensi WHO**: Median tinggi anak {umur} bulan ({jenis_kelamin}) = **{ref_height:.1f} cm**")
