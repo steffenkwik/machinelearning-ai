@@ -287,7 +287,7 @@ export function DetectionTab({ status, predict }: Props) {
 
         <Button
           size="lg"
-          className="w-full"
+          className="btn-shine w-full"
           onClick={onAnalyze}
           disabled={!modelReady || busy}
           aria-busy={busy}
