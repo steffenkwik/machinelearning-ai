@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StuntCare AI — Deteksi Dini Risiko Stunting Balita</title>
+<meta name="description" content="Deteksi dini risiko stunting balita berbasis 7 faktor menggunakan Random Forest. AI berjalan di browser — privat, cepat, offline." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>" />
+</head>
+<body>
+<!-- animated background -->
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
+
+<!-- NAVBAR -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-logo">🌱</div>
+      <div class="brand-text">
+        <span class="brand-name">StuntCare<span class="grad-text"> AI</span></span>
+        <span class="brand-sub">Early Stunting Detection</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div id="modelStatus" class="model-pill loading">
+        <span class="pulse-dot"></span><span id="modelStatusText">Memuat model AI…</span>
+      </div>
+      <a class="gh-link" href="https://github.com/steffenkwik/machinelearning-ai" target="_blank" rel="noopener" title="Source code">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">⚡ AI berjalan 100% di browser · Privat · Offline-ready</div>
+  <h1 class="hero-title">Deteksi Dini Risiko <span class="grad-text">Stunting</span><br/>pada Balita dengan <span class="grad-text-2">Machine Learning</span></h1>
+  <p class="hero-desc">Menghitung <b>7 faktor penyebab stunting</b> sekaligus menggunakan <b>Random Forest Classifier</b> — dilatih pada standar <b>WHO Child Growth 2006</b>. Akurasi model <b>88,40%</b> (Excellent).</p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-val grad-text">88,40<span>%</span></div><div class="hstat-lab">Accuracy</div></div>
+    <div class="hstat"><div class="hstat-val grad-text">7</div><div class="hstat-lab">Faktor</div></div>
+    <div class="hstat"><div class="hstat-val grad-text">4</div><div class="hstat-lab">Kategori</div></div>
+    <div class="hstat"><div class="hstat-val grad-text">120</div><div class="hstat-lab">Decision Trees</div></div>
+  </div>
+  <div class="hero-tags">
+    <span class="tag">🎯 SDG #3 — Good Health &amp; Well-being</span>
+    <span class="tag">👨‍🎓 Daniel Steffen K · 2602071171</span>
+    <span class="tag">COMP6065001 · LA05-LEC · BINUS</span>
+  </div>
+  <a href="#detect" class="cta-btn">Mulai Deteksi ↓</a>
+</header>
+
+<!-- TABS -->
+<div class="tabs" id="detect">
+  <button class="tab active" data-tab="deteksi">🔍 Deteksi Stunting</button>
+  <button class="tab" data-tab="tentang">📊 Tentang Project</button>
+  <button class="tab" data-tab="cara">🧠 Cara Kerja AI</button>
+  <button class="tab" data-tab="etika">⚖️ Etika &amp; Privasi</button>
+</div>
+
+<main class="container">
+  <!-- ============ TAB: DETEKSI ============ -->
+  <section class="panel active" id="tab-deteksi">
+    <div class="detect-grid">
+      <!-- INPUT -->
+      <div class="card form-card">
+        <div class="card-head"><span class="card-ico">📋</span><h3>Masukkan Data Anak &amp; Ibu</h3></div>
+        <p class="muted">Isi 7 faktor berikut untuk prediksi risiko stunting yang komprehensif.</p>
+
+        <div class="sect-label">👶 Data Anak</div>
+        <div class="field-grid">
+          <label class="field span2"><span>Nama Anak <em>(opsional)</em></span>
+            <input type="text" id="nama" placeholder="Contoh: Adi" /></label>
+          <label class="field"><span>📅 Umur (bulan)</span>
+            <input type="number" id="umur" min="0" max="60" value="24" /></label>
+          <label class="field"><span>📐 Tinggi Badan (cm)</span>
+            <input type="number" id="tinggi" min="30" max="130" step="0.1" value="85" /></label>
+          <label class="field"><span>⚖️ Berat Badan (kg)</span>
+            <input type="number" id="berat" min="2" max="30" step="0.1" value="11" /></label>
+          <div class="field"><span>⚧ Jenis Kelamin</span>
+            <div class="seg" id="seg-sex">
+              <button class="seg-btn active" data-v="laki-laki">Laki-laki</button>
+              <button class="seg-btn" data-v="perempuan">Perempuan</button>
+            </div></div>
+        </div>
+
+        <div class="sect-label">🤰 Data Ibu &amp; Riwayat Kehamilan</div>
+        <div class="field-grid">
+          <div class="field"><span>Apakah anak pertama?</span>
+            <div class="seg" id="seg-first">
+              <button class="seg-btn active" data-v="Ya">Ya</button>
+              <button class="seg-btn" data-v="Tidak">Tidak</button>
+            </div></div>
+          <label class="field" id="jarak-wrap" style="display:none"><span>👶 Jarak dari anak sebelumnya (bln)</span>
+            <input type="number" id="jarak" min="6" max="72" value="24" /></label>
+          <label class="field"><span>💍 Usia Ibu Menikah (tahun)</span>
+            <input type="number" id="usiaIbu" min="14" max="45" value="23" /></label>
+          <label class="field"><span>🍎 Gizi Ibu saat Hamil</span>
+            <select id="gizi"><option>Baik</option><option>Sedang</option><option>Buruk</option></select></label>
+        </div>
+
+        <div class="who-ref" id="whoRef">📊 Referensi WHO: median tinggi anak 24 bulan (laki-laki) = <b>87,8 cm</b></div>
+        <button class="predict-btn" id="predictBtn" disabled>
+          <span class="pb-glow"></span><span id="predictLabel">⏳ Menyiapkan model…</span>
+        </button>
+      </div>
+
+      <!-- RESULT -->
+      <div class="card result-card" id="resultCard">
+        <div class="result-empty" id="resultEmpty">
+          <div class="re-ico">🧬</div>
+          <h3>Hasil Analisis Muncul di Sini</h3>
+          <p class="muted">Isi data anak &amp; ibu, lalu klik <b>Analisis Risiko Stunting</b>. Model Random Forest akan menghitung 7 faktor secara real-time di perangkatmu.</p>
+          <div class="re-chips"><span>⚡ Inferensi &lt;50ms</span><span>🔒 Data tidak dikirim ke server</span></div>
+        </div>
+        <div class="result-content" id="resultContent" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: TENTANG ============ -->
+  <section class="panel" id="tab-tentang">
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><span class="card-ico">🎯</span><h3>Masalah yang Diatasi</h3></div>
+        <p>Prevalensi stunting Indonesia <b>19,8%</b> (SSGI 2024, Kemenkes RI) — sekitar <b>4,4 juta balita</b>. Stunting disebabkan <b>banyak faktor</b> yang saling terkait, bukan hanya tinggi badan. Deteksi dini sulit karena memerlukan kunjungan ke fasilitas kesehatan.</p></div>
+      <div class="card"><div class="card-head"><span class="card-ico">💡</span><h3>Solusi</h3></div>
+        <p>Web app berbasis ML yang menghitung <b>7 faktor penyebab stunting</b> sekaligus — dari data anak (umur, kelamin, tinggi, berat) hingga riwayat maternal (jarak kehamilan, usia ibu, gizi saat hamil). Gratis, mobile-friendly, dan jalan offline.</p></div>
+      <div class="card"><div class="card-head"><span class="card-ico">👥</span><h3>Penerima Manfaat</h3></div>
+        <ul><li><b>Orang Tua Balita</b> — monitoring mandiri di rumah</li><li><b>Kader Posyandu</b> — skrining massal lebih cepat</li><li><b>Dinas Kesehatan</b> — data untuk kebijakan SDG #3</li></ul></div>
+      <div class="card"><div class="card-head"><span class="card-ico">📦</span><h3>Output / Produk (MVP)</h3></div>
+        <ul><li>Web Application real-time (client-side AI)</li><li>Prediksi 4 kategori dari 7 faktor</li><li>Confidence score &amp; analisis faktor risiko</li><li>Rekomendasi tindak lanjut otomatis</li></ul></div>
+    </div>
+    <div class="card"><div class="card-head"><span class="card-ico">🧬</span><h3>7 Faktor Penyebab Stunting yang Dihitung</h3></div>
+      <div class="factor-grid" id="factorGrid"></div></div>
+    <div class="grid-2">
+      <div class="card lo-card"><div class="lo-tag">LO5</div><div><h4>Apply learning algorithms</h4><p>Implementasi <b>Random Forest</b> (120 trees) pada 7 faktor — akurasi 88,40% (Excellent ≥85%).</p></div></div>
+      <div class="card lo-card"><div class="lo-tag">LO6</div><div><h4>Analyze Ethics in AI</h4><p>Audit fairness (disparitas 1,84%), privacy, transparency, &amp; safety pada aplikasi kesehatan.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: CARA KERJA ============ -->
+  <section class="panel" id="tab-cara">
+    <div class="card">
+      <div class="card-head"><span class="card-ico">🧠</span><h3>Bagaimana Random Forest Bekerja?</h3></div>
+      <p>Bayangkan minta pendapat ke <b>banyak dokter sekaligus</b>, bukan cuma satu. Random Forest membangun <b>120 pohon keputusan</b>; tiap pohon menebak, lalu diambil <b>suara terbanyak</b>. Hasilnya lebih akurat &amp; stabil.</p>
+      <div class="flow">
+        <div class="flow-step"><div class="fs-num">1</div><div><b>Input 7 Faktor</b><p>Data anak + riwayat ibu</p></div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="fs-num">2</div><div><b>Preprocess</b><p>Encoding kategorikal jadi angka</p></div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="fs-num">3</div><div><b>120 Trees Voting</b><p>Setiap pohon menebak kategori</p></div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="fs-num">4</div><div><b>Output</b><p>Prediksi + confidence score</p></div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><span class="card-ico">📊</span><h3>Bobot Kepentingan Faktor</h3></div>
+        <div class="bars" id="impBars"></div></div>
+      <div class="card"><div class="card-head"><span class="card-ico">📋</span><h3>Spesifikasi Model</h3></div>
+        <table class="spec"><tbody id="specBody"></tbody></table></div>
+    </div>
+    <div class="card"><div class="card-head"><span class="card-ico">🛠️</span><h3>Cara Pembuatan (Teknis)</h3></div>
+      <div class="tech-grid">
+        <div class="tech"><b>🐍 Python</b><span>Bahasa utama</span></div>
+        <div class="tech"><b>📊 scikit-learn</b><span>Random Forest</span></div>
+        <div class="tech"><b>🐼 Pandas</b><span>Olah data</span></div>
+        <div class="tech"><b>⚡ ONNX Runtime</b><span>AI di browser</span></div>
+        <div class="tech"><b>☁️ Cloudflare</b><span>Hosting statis</span></div>
+        <div class="tech"><b>📈 25.000</b><span>Sampel dataset</span></div>
+      </div></div>
+  </section>
+
+  <!-- ============ TAB: ETIKA ============ -->
+  <section class="panel" id="tab-etika">
+    <div class="card"><div class="card-head"><span class="card-ico">⚖️</span><h3>Audit Fairness — Adil Antar Gender?</h3></div>
+      <table class="spec fair"><thead><tr><th>Kelompok</th><th>Accuracy</th><th>F1-Score</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Laki-laki</td><td>89,30%</td><td>85,13%</td><td><span class="ok">✅ Fair</span></td></tr>
+        <tr><td>Perempuan</td><td>87,46%</td><td>81,92%</td><td><span class="ok">✅ Fair</span></td></tr>
+        <tr><td>Disparitas</td><td>1,84%</td><td>3,21%</td><td><span class="ok">✅ &lt; 5%</span></td></tr>
+      </tbody></table></div>
+    <div class="card"><div class="card-head"><span class="card-ico">🛡️</span><h3>6 Prinsip Etika yang Diimplementasikan</h3></div>
+      <div class="eth-grid" id="ethGrid"></div></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>🌱 <b>StuntCare AI</b> — Deteksi Dini Stunting Multi-Faktor · AOL Project BINUS University 2026</p>
+  <p class="muted">Dibuat oleh <b>Daniel Steffen K</b> · NIM 2602071171 · COMP6065001 LA05-LEC · Random Forest · WHO 2006 · SSGI 2024 · Akurasi 88,40%</p>
+  <p class="muted small">⚠️ Alat skrining awal, bukan diagnosis medis. Konsultasikan dengan dokter anak / ahli gizi.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
