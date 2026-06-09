@@ -1,28 +1,29 @@
-# 🌱 PANDUAN LENGKAP — Deteksi Stunting Multi-Faktor (7 Fitur)
+# 🌱 PANDUAN LENGKAP — StuntCare AI (Deteksi Dini Stunting Multi-Faktor)
 
 **Nama:** Daniel Steffen K | **NIM:** 2602071171
 **Mata Kuliah:** Artificial Intelligence (COMP6065001) — LA05-LEC
 **SDG #3:** Good Health and Well-being
 
+> Aplikasi kini berupa **web statis modern** (React + Vite + TypeScript) yang
+> menjalankan model **Random Forest** asli **100% di peramban** melalui **ONNX
+> Runtime Web** — gratis, cepat, dapat luring, dan data anak tidak dikirim ke
+> server. Versi Streamlit lama tetap disertakan sebagai referensi.
+
 ---
 
-## 📦 File dalam Folder Ini
+## 📦 Struktur Penting
 
-| File | Fungsi | Wajib untuk app? |
-|---|---|---|
-| `app.py` | Web application Streamlit | ✅ |
-| `model_stunting.pkl` | Model AI Random Forest (7 fitur) | ✅ |
-| `encoder_jenis_kelamin.pkl` | Encoder jenis kelamin | ✅ |
-| `encoder_gizi_ibu.pkl` | Encoder gizi ibu | ✅ |
-| `encoder_status.pkl` | Encoder status gizi | ✅ |
-| `requirements.txt` | Daftar library | ✅ |
-| `.streamlit/config.toml` | Paksa tema terang | ✅ |
-| `01_Stunting_ML_Training.ipynb` | Notebook training (Colab) | Untuk laporan |
-| `dataset_stunting.csv` | Dataset 25.000 sampel | Untuk laporan |
-| `dataset_combined_full.csv` | Dataset lengkap | Untuk laporan |
-| `confusion_matrix.png` | Visualisasi evaluasi | Untuk laporan |
-| `feature_importance.png` | Bobot 7 faktor | Untuk laporan |
-| `eda_distribusi.png` | Distribusi data | Untuk laporan |
+| Path | Fungsi |
+|---|---|
+| `web/` | **Aplikasi web baru (yang di-deploy)** — React + Vite + ONNX |
+| `web/public/model_stunting.onnx` | Model Random Forest (hasil konversi dari `.pkl`) |
+| `web/public/mediapipe/` | Model pose untuk fitur analisis foto |
+| `web/src/inference/worker.ts` | Inferensi ONNX di **Web Worker** (anti-freeze) |
+| `web/src/lib/pose.ts`, `fusion.ts` | Detektor proporsi tubuh + late-fusion transparan |
+| `model_stunting.pkl` | Model asli scikit-learn (Random Forest 7 fitur) |
+| `01_Stunting_ML_Training.ipynb` | Notebook pelatihan model |
+| `app.py` | Purwarupa **lama (Streamlit)** — referensi |
+| `dataset_stunting.csv` | Dataset 25.000 sampel |
 
 ---
 
@@ -36,71 +37,85 @@
 | **Recall** | 85,93% |
 | **Cross-Validation** | 87,31% ± 0,42% |
 | **Fairness Disparity** | 1,83% (antar gender) |
-| **Model Size** | 9 MB |
-| **Dataset** | 25.000 sampel |
+| **Algoritma** | Random Forest — 120 trees, max depth 14 |
+| **Dataset** | 25.000 sampel (80:20) |
 
 ---
 
 ## 🧬 7 Faktor Penyebab Stunting yang Dihitung
 
-1. **Umur anak** (bulan) — acuan standar WHO
-2. **Jenis kelamin** — standar berbeda L/P
-3. **Tinggi badan** (cm) — Height-for-Age Z-Score (50,6% bobot)
-4. **Berat badan** (kg) — Weight-for-Age (9,5% bobot)
-5. **Jarak kehamilan** (bulan) — ideal >24 bln (BKKBN 4T)
-6. **Usia ibu menikah** (tahun) — pernikahan dini <20 = risiko
-7. **Gizi ibu saat hamil** (Baik/Sedang/Buruk) — KEK → BBLR → stunting
+1. **Tinggi badan** (cm) — Height-for-Age Z-Score (bobot 50,6%)
+2. **Umur anak** (bulan) — acuan standar WHO (28,7%)
+3. **Berat badan** (kg) — Weight-for-Age (9,5%)
+4. **Jarak kehamilan** (bulan) — ideal >24 bln (BKKBN 4T)
+5. **Usia ibu menikah** (tahun) — pernikahan dini <20 = risiko
+6. **Gizi ibu saat hamil** (Baik/Sedang/Buruk) — KEK → BBLR → stunting
+7. **Jenis kelamin** — standar WHO berbeda L/P
 
 ---
 
-## 🚀 CARA MENJALANKAN (Langkah demi Langkah)
+## 🚀 Menjalankan Aplikasi Web (Utama)
 
-### 1. Siapkan folder
-Pastikan semua file wajib (tabel di atas) ada dalam SATU folder, termasuk folder `.streamlit`.
-
-### 2. Install library (sekali saja)
-Buka Command Prompt di folder tersebut, ketik:
+```bash
+cd web
+npm install      # pasang dependency (sekali saja)
+npm run dev      # buka http://localhost:5173
 ```
+
+Build produksi:
+
+```bash
+cd web
+npm run build    # hasil di web/dist
+npm run preview  # uji hasil build
+npm run test     # (opsional) unit test detektor foto & fusion
+```
+
+---
+
+## ☁️ Deploy ke Cloudflare Pages
+
+| Pengaturan | Nilai |
+|---|---|
+| Framework preset | Vite |
+| Root directory | `web` |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+
+> **Penting:** Root sudah `web`, jadi output cukup `dist` (BUKAN `web/dist`).
+
+---
+
+## 🖥️ Menjalankan Purwarupa Lama (Streamlit) — Referensi
+
+```bash
 pip install -r requirements.txt
-```
-
-### 3. Jalankan aplikasi
-```
 python -m streamlit run app.py
 ```
-Browser akan terbuka otomatis di `http://localhost:8501`.
-
-> ⚠️ Kalau `streamlit run app.py` error "not recognized", selalu pakai `python -m streamlit run app.py`.
 
 ---
 
-## ☁️ Deploy ke Streamlit Cloud (Online)
+## 🔧 Konversi Ulang Model (opsional)
 
-1. Upload semua file ke repository **GitHub** (public)
-2. Buka https://share.streamlit.io → login GitHub
-3. New app → pilih repo → main file: `app.py` → Deploy
-4. Tunggu 2-3 menit → dapat URL publik untuk demo
-
----
-
-## 🆘 Troubleshooting
-
-| Masalah | Solusi |
-|---|---|
-| `streamlit not recognized` | Pakai `python -m streamlit run app.py` |
-| `FileNotFoundError: model_stunting.pkl` | Pastikan semua .pkl di folder yang sama dengan app.py |
-| Teks tidak terlihat / putih | Pastikan folder `.streamlit/config.toml` ada |
-| `ModuleNotFoundError` | Ulangi `pip install -r requirements.txt` |
+```python
+from skl2onnx import to_onnx
+from skl2onnx.common.data_types import FloatTensorType
+import joblib
+m = joblib.load("model_stunting.pkl")
+onx = to_onnx(m, initial_types=[("input", FloatTensorType([None, 7]))],
+              options={id(m): {"zipmap": False}}, target_opset=15)
+open("web/public/model_stunting.onnx", "wb").write(onx.SerializeToString())
+```
 
 ---
 
 ## 📝 Catatan untuk Presentasi
 
-**Yang ditekankan ke dosen:**
-- Topik masuk **SDG #3** (Good Health) — "Malnutrition monitoring in children"
-- Model menghitung **7 faktor penyebab** stunting (bukan cuma tinggi badan)
-- Akurasi **88,40%** → masuk kategori **Excellent** (rubrik ≥85%)
-- Faktor maternal (jarak kehamilan, usia nikah, gizi hamil) berbasis literatur medis
-- Aplikasi adalah **MVP** (Minimum Viable Product) sesuai syarat AOL
+- Topik **SDG #3** (Good Health) — monitoring malnutrisi pada anak.
+- Model menghitung **7 faktor** penyebab stunting (bukan hanya tinggi badan).
+- Akurasi **88,40%** → **Excellent** (rubrik ≥85%).
+- Inovasi: model asli berjalan **di peramban** (ONNX) — gratis, luring, privat.
+- Tekankan **algoritma Random Forest**: ensemble 120 pohon, soft voting,
+  feature importance untuk transparansi.
 
 Good luck! 🍀
