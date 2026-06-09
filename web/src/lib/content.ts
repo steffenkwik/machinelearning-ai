@@ -109,10 +109,10 @@ export const MODEL_SPECS: { label: string; value: string }[] = [
 ];
 
 export const HEADLINE_STATS = [
-  { value: "88,40%", label: "Akurasi Model", hint: "Test set 5.000 sampel" },
-  { value: "83,56%", label: "F1-Score Macro", hint: "Rata-rata 4 kelas" },
-  { value: "87,31%", label: "Cross-Validation", hint: "± 0,42% (5-fold)" },
-  { value: "7", label: "Faktor Dianalisis", hint: "Anak + maternal" },
+  { value: 88.4, decimals: 2, suffix: "%", label: "Akurasi Model", hint: "Test set 5.000 sampel" },
+  { value: 83.56, decimals: 2, suffix: "%", label: "F1-Score Macro", hint: "Rata-rata 4 kelas" },
+  { value: 87.31, decimals: 2, suffix: "%", label: "Cross-Validation", hint: "± 0,42% (5-fold)" },
+  { value: 7, decimals: 0, suffix: "", label: "Faktor Dianalisis", hint: "Anak + maternal" },
 ];
 
 export const FAIRNESS_ROWS = [

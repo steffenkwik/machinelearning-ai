@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { CountUp } from "@/components/CountUp";
 import {
   RESULT_CONFIG,
   STATUS_ORDER,
@@ -108,7 +109,7 @@ export function ResultPanel({ result }: { result: AnalysisResult }) {
         <div className="relative mt-6 rounded-2xl bg-white/10 p-4 backdrop-blur">
           <div className="flex items-center justify-between text-sm font-semibold">
             <span className="text-white/85">Tingkat keyakinan AI</span>
-            <span className="font-display text-lg">{result.confidence.toFixed(1)}%</span>
+            <CountUp className="font-display text-lg" value={result.confidence} decimals={1} suffix="%" duration={900} />
           </div>
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/20">
             <div

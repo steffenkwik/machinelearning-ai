@@ -1,5 +1,6 @@
 import { Sprout, ShieldCheck, Cpu } from "lucide-react";
 import { HEADLINE_STATS } from "@/lib/content";
+import { CountUp } from "@/components/CountUp";
 import type { ModelStatus } from "@/inference/useModel";
 
 function StatusPill({ status }: { status: ModelStatus }) {
@@ -23,8 +24,10 @@ export function Hero({ status }: { status: ModelStatus }) {
     <header className="relative overflow-hidden bg-ink text-white">
       <div className="absolute inset-0 hero-mesh" aria-hidden />
       <div className="absolute inset-0 grid-lines opacity-60" aria-hidden />
+      <div className="orb -right-24 top-10 h-72 w-72 bg-brand-400/25" aria-hidden />
       <div
-        className="absolute -right-32 top-1/4 h-[34rem] w-[34rem] rounded-full bg-brand-500/20 blur-[120px] animate-pulse-glow"
+        className="orb -left-16 bottom-0 h-64 w-64 bg-emerald-500/20"
+        style={{ animationDelay: "-6s" }}
         aria-hidden
       />
 
@@ -75,13 +78,14 @@ export function Hero({ status }: { status: ModelStatus }) {
         </div>
 
         <dl className="mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {HEADLINE_STATS.map((s) => (
+          {HEADLINE_STATS.map((s, i) => (
             <div
               key={s.label}
-              className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur transition-colors hover:border-brand-400/40"
+              className="animate-fade-up rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-brand-400/50 hover:bg-white/[0.1]"
+              style={{ animationDelay: `${0.15 + i * 0.09}s` }}
             >
               <dd className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-                {s.value}
+                <CountUp value={s.value} decimals={s.decimals} suffix={s.suffix} />
               </dd>
               <dt className="mt-1 text-sm font-semibold text-emerald-100">{s.label}</dt>
               <p className="mt-0.5 text-xs text-emerald-200/60">{s.hint}</p>

@@ -1,5 +1,7 @@
 import { ListChecks, Binary, Trees, BarChart3 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Reveal } from "@/components/Reveal";
 import { FACTORS, MODEL_SPECS, REFERENCES } from "@/lib/content";
 
 const STEPS = [
@@ -27,12 +29,13 @@ export function HowItWorksTab() {
             {STEPS.map((s, i) => (
               <div
                 key={s.title}
-                className="relative rounded-2xl border border-border bg-secondary/40 p-4"
+                className="group animate-fade-up interactive-card relative rounded-2xl border border-border bg-secondary/40 p-4"
+                style={{ animationDelay: `${i * 80}ms` }}
               >
                 <span className="font-mono text-xs font-semibold text-brand-400">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <s.icon className="mt-2 h-6 w-6 text-brand-600" />
+                <s.icon className="mt-2 h-6 w-6 text-brand-600 transition-transform duration-300 group-hover:scale-110" />
                 <h4 className="mt-2 font-display text-sm font-bold text-foreground">{s.title}</h4>
                 <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{s.body}</p>
               </div>
@@ -42,7 +45,8 @@ export function HowItWorksTab() {
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Reveal>
+        <Card className="interactive-card h-full">
           <CardContent className="p-6">
             <h3 className="font-display text-base font-bold text-brand-800">
               Bobot kepentingan tiap faktor
@@ -55,19 +59,16 @@ export function HowItWorksTab() {
                     <span className="font-medium text-foreground">{f.name}</span>
                     <span className="font-mono text-xs text-muted-foreground">{f.importance}%</span>
                   </div>
-                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-brand-100">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-600"
-                      style={{ width: `${(f.importance / maxImp) * 100}%` }}
-                    />
-                  </div>
+                  <Progress value={(f.importance / maxImp) * 100} />
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
+        </Reveal>
 
-        <Card>
+        <Reveal delay={100}>
+        <Card className="interactive-card h-full">
           <CardContent className="p-6">
             <h3 className="mb-4 font-display text-base font-bold text-brand-800">
               Spesifikasi model
@@ -82,9 +83,11 @@ export function HowItWorksTab() {
             </dl>
           </CardContent>
         </Card>
+        </Reveal>
       </div>
 
-      <Card>
+      <Reveal>
+      <Card className="interactive-card">
         <CardContent className="p-6">
           <h3 className="mb-3 font-display text-base font-bold text-brand-800">Referensi</h3>
           <ul className="space-y-2">
@@ -97,6 +100,7 @@ export function HowItWorksTab() {
           </ul>
         </CardContent>
       </Card>
+      </Reveal>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { Target, Lightbulb, Users, Package, GraduationCap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/Reveal";
 import { FACTORS } from "@/lib/content";
 
 const INFO = [
@@ -42,16 +43,18 @@ export function AboutTab() {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-2">
-        {INFO.map((it) => (
-          <Card key={it.title}>
-            <CardContent className="p-6">
-              <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                <it.icon className="h-5 w-5" />
-              </div>
-              <h3 className="font-display text-base font-bold text-brand-800">{it.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{it.body}</p>
-            </CardContent>
-          </Card>
+        {INFO.map((it, i) => (
+          <Reveal key={it.title} delay={i * 70}>
+            <Card className="group interactive-card h-full">
+              <CardContent className="p-6">
+                <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-transform duration-300 group-hover:scale-110">
+                  <it.icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-base font-bold text-brand-800">{it.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{it.body}</p>
+              </CardContent>
+            </Card>
+          </Reveal>
         ))}
       </div>
 
@@ -61,20 +64,22 @@ export function AboutTab() {
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {FACTORS.map((f, i) => (
-            <Card key={f.name} className="border-l-4 border-l-brand-400">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-semibold text-brand-500">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="rounded-full bg-brand-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-brand-600">
-                    {f.importance}%
-                  </span>
-                </div>
-                <h4 className="mt-1 font-display text-sm font-bold text-foreground">{f.name}</h4>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{f.detail}</p>
-              </CardContent>
-            </Card>
+            <Reveal key={f.name} delay={i * 55}>
+              <Card className="interactive-card h-full border-l-4 border-l-brand-400">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-semibold text-brand-500">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="rounded-full bg-brand-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-brand-600">
+                      {f.importance}%
+                    </span>
+                  </div>
+                  <h4 className="mt-1 font-display text-sm font-bold text-foreground">{f.name}</h4>
+                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{f.detail}</p>
+                </CardContent>
+              </Card>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -87,8 +92,9 @@ export function AboutTab() {
           </h3>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {LEARNING_OUTCOMES.map((lo) => (
-            <Card key={lo.code}>
+          {LEARNING_OUTCOMES.map((lo, i) => (
+            <Reveal key={lo.code} delay={i * 80}>
+            <Card className="interactive-card h-full">
               <CardContent className="p-6">
                 <div className="flex items-center gap-2">
                   <span className="rounded-lg bg-brand-600 px-2 py-0.5 font-mono text-xs font-bold text-white">
@@ -99,6 +105,7 @@ export function AboutTab() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{lo.body}</p>
               </CardContent>
             </Card>
+            </Reveal>
           ))}
         </div>
       </section>

@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/Reveal";
 import { ETHICS, FAIRNESS_ROWS } from "@/lib/content";
 
 const ICONS = [Lock, Scale, Eye, ShieldCheck, Accessibility, BookOpen, FlaskConical];
@@ -30,15 +31,17 @@ export function EthicsTab() {
         {ETHICS.map((e, i) => {
           const Icon = ICONS[i] ?? Lock;
           return (
-            <Card key={e.title}>
-              <CardContent className="p-5">
-                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h4 className="font-display text-sm font-bold text-brand-800">{e.title}</h4>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{e.body}</p>
-              </CardContent>
-            </Card>
+            <Reveal key={e.title} delay={i * 60}>
+              <Card className="group interactive-card h-full">
+                <CardContent className="p-5">
+                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-display text-sm font-bold text-brand-800">{e.title}</h4>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{e.body}</p>
+                </CardContent>
+              </Card>
+            </Reveal>
           );
         })}
       </div>
