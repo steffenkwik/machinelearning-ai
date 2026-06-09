@@ -33,9 +33,13 @@ npm run preview  # uji hasil build secara lokal
 | Setting | Nilai |
 | --- | --- |
 | Framework preset | Vite |
-| Build command | `npm install && npm run build` |
-| Build output directory | `web/dist` |
 | Root directory | `web` |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+
+> Penting: "Build output directory" digabung dengan "Root directory" oleh
+> Cloudflare. Karena Root directory sudah `web`, isi output dengan `dist`
+> saja (BUKAN `web/dist`, nanti dibaca jadi `web/web/dist` dan gagal).
 
 **Opsi B — Direct Upload (drag & drop):**
 
