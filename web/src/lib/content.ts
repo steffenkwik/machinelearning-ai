@@ -122,7 +122,7 @@ export const FAIRNESS_ROWS = [
 ];
 
 export const ETHICS = [
-  { title: "Privasi Data", body: "Aplikasi tidak menyimpan data input. Semua perhitungan berjalan di perangkat Anda dan langsung dilupakan setelah selesai." },
+  { title: "Privasi Data", body: "Prediksi stunting berjalan 100% di perangkat Anda — data anak tidak dikirim ke server dan langsung dilupakan. Fitur chat AI bersifat opsional: hanya teks pertanyaan yang dikirim ke layanan AI, dan pengguna diingatkan untuk tidak memasukkan data pribadi." },
   { title: "Fairness", body: "Akurasi laki-laki 89,30% vs perempuan 87,46%. Disparitas 1,83% — di bawah ambang industri 5%." },
   { title: "Transparansi", body: "Confidence score, probabilitas tiap kelas, dan catatan faktor risiko selalu ditampilkan — bukan kotak hitam." },
   { title: "Keamanan", body: "Disclaimer jelas: hasil adalah skrining awal, bukan diagnosis medis. Kasus berat diarahkan ke fasilitas kesehatan." },
