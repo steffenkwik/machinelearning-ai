@@ -283,22 +283,21 @@ infobox(sl, Inches(8.3), Inches(1.9), Inches(4.25), Inches(4.55),
         "jadi tidak ada klaim palsu. Berguna untuk mendeteksi kurus/gemuk.",
         bg=AMBERBG, accent=AMBER, tcolor=RGBColor(0x6B, 0x4A, 0x07))
 
-# ───────────── Slide 12: Fitur chat AI (NEW) ─────────────
-sl = content_slide("Fitur baru: Asisten AI Gizi (chat)", "Inovasi tambahan")
+# ───────────── Slide 12: Asisten edukasi (gratis, di perangkat) ─────────────
+sl = content_slide("Fitur baru: Asisten Edukasi Stunting", "Inovasi tambahan")
 bullets(sl, Inches(0.65), Inches(1.9), Inches(7.4), Inches(4.7), [
-    "Di **atas form**, pengguna bisa bertanya ke asisten AI tentang **cara mencegah "
-    "stunting & tips gizi** — agar dapat ilmu, bukan hanya hasil prediksi.",
-    "Ditenagai **Claude (Anthropic)**. Jawaban ringkas, berbasis pedoman WHO/Kemenkes, "
-    "dan menolak memberi diagnosis medis.",
-    "Pertanyaan dikirim ke layanan AI; **prediksi stunting tetap 100% di perangkat**.",
+    "Di **atas form**, pengguna bisa bertanya tips **mencegah stunting & gizi balita** "
+    "— agar dapat ilmu, bukan hanya hasil prediksi.",
+    "Berjalan **100% di perangkat** memakai basis pengetahuan terkurasi dari pedoman "
+    "**WHO & Kemenkes** — gratis, tanpa internet, tanpa biaya.",
+    "Bersifat **edukasi, bukan diagnosis**; kondisi khusus diarahkan ke posyandu/dokter.",
 ], size=15)
 infobox(sl, Inches(8.3), Inches(1.9), Inches(4.25), Inches(4.7),
-        "Langkah integrasi (singkat)",
-        "1. Buat API key di console.anthropic.com.\n"
-        "2. Simpan sebagai secret ANTHROPIC_API_KEY di Cloudflare Pages.\n"
-        "3. Permintaan chat lewat fungsi server (Cloudflare Pages Function) agar API key "
-        "aman — tidak pernah ada di sisi pengguna.\n"
-        "4. Deploy ulang. Selesai.")
+        "Kenapa pendekatan ini?",
+        "• Gratis & tanpa API key (tidak perlu token berbayar).\n"
+        "• Privat — pertanyaan tidak dikirim ke server mana pun.\n"
+        "• Tidak mengarang — jawaban berasal dari materi yang sudah disusun.\n"
+        "• Mudah ditambah: cukup edit daftar topik di kode (±19 topik).")
 
 # ───────────── Slide 13: Demo & deploy ─────────────
 sl = content_slide("Demo & deployment", "Implementasi")

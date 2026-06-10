@@ -1,63 +1,42 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Sparkles,
-  Send,
-  Loader2,
-  ChevronDown,
-  Bot,
-  User,
-  Info,
-} from "lucide-react";
+import { Sparkles, Send, Loader2, ChevronDown, Bot, User, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { findAnswer, KNOWLEDGE } from "@/lib/stunting-knowledge";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const SUGGESTIONS = [
-  "Cara mencegah stunting pada balita?",
-  "Makanan bergizi untuk anak 2 tahun?",
-  "Kenapa jarak kehamilan memengaruhi stunting?",
-  "Tips MPASI agar anak tumbuh optimal?",
-];
+// Tampilkan beberapa topik populer sebagai tombol saran.
+const SUGGESTIONS = ["cegah", "mpasi", "asi", "gizi-seimbang", "jarak-hamil", "gizi-ibu"]
+  .map((id) => KNOWLEDGE.find((k) => k.id === id))
+  .filter(Boolean)
+  .map((k) => ({ q: k!.title, full: k!.keywords[0] }));
 
 export function StuntingChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [typing, setTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, typing]);
 
-  async function send(text: string) {
+  function ask(text: string) {
     const q = text.trim();
-    if (!q || loading) return;
-    setError(null);
-    const next: Msg[] = [...messages, { role: "user", content: q }];
-    setMessages(next);
+    if (!q || typing) return;
+    setMessages((prev) => [...prev, { role: "user", content: q }]);
     setInput("");
-    setLoading(true);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: next }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data?.message || "Fitur chat belum tersedia.");
-      } else {
-        setMessages([...next, { role: "assistant", content: data.text }]);
-      }
-    } catch {
-      setError("Gagal terhubung. Periksa koneksi internet.");
-    }
-    setLoading(false);
-    inputRef.current?.focus();
+    setTyping(true);
+    const { answer } = findAnswer(q);
+    // Jeda singkat agar terasa natural (berjalan di perangkat, instan).
+    window.setTimeout(() => {
+      setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+      setTyping(false);
+      inputRef.current?.focus();
+    }, 350);
   }
 
   return (
@@ -72,16 +51,16 @@ export function StuntingChat() {
           <Sparkles className="h-5 w-5" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-2">
+          <span className="flex flex-wrap items-center gap-2">
             <span className="font-display text-sm font-bold text-brand-800">
-              Tanya Asisten AI Gizi
+              Asisten Edukasi Stunting
             </span>
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-              Eksperimental
+            <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold text-brand-700">
+              Gratis · di perangkat
             </span>
           </span>
           <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-            Tanya tips mencegah stunting & gizi anak sebelum mengisi data
+            Tanya tips cegah stunting & gizi anak sebelum mengisi data
           </span>
         </span>
         <ChevronDown
@@ -92,14 +71,11 @@ export function StuntingChat() {
       {open && (
         <div className="border-t border-brand-100 px-4 pb-4 pt-3 animate-fade-up">
           {/* Messages */}
-          <div
-            ref={scrollRef}
-            className="max-h-72 space-y-3 overflow-y-auto pr-1"
-          >
+          <div ref={scrollRef} className="max-h-72 space-y-3 overflow-y-auto pr-1">
             {messages.length === 0 && (
               <div className="rounded-xl bg-white/70 p-3 text-sm text-muted-foreground">
                 Halo! Saya asisten edukasi gizi. Tanyakan apa saja tentang{" "}
-                <strong>cara mencegah stunting</strong> dan gizi balita.
+                <strong>cara mencegah stunting</strong> dan gizi balita, atau pilih topik di bawah.
               </div>
             )}
             {messages.map((m, i) => (
@@ -127,7 +103,7 @@ export function StuntingChat() {
                 </div>
               </div>
             ))}
-            {loading && (
+            {typing && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700">
                   <Bot className="h-4 w-4" />
@@ -143,20 +119,13 @@ export function StuntingChat() {
             <div className="mt-3 flex flex-wrap gap-2">
               {SUGGESTIONS.map((s) => (
                 <button
-                  key={s}
-                  onClick={() => send(s)}
-                  disabled={loading}
-                  className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50 disabled:opacity-50"
+                  key={s.q}
+                  onClick={() => ask(s.full)}
+                  className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50"
                 >
-                  {s}
+                  {s.q}
                 </button>
               ))}
-            </div>
-          )}
-
-          {error && (
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              {error}
             </div>
           )}
 
@@ -164,7 +133,7 @@ export function StuntingChat() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              send(input);
+              ask(input);
             }}
             className="mt-3 flex items-end gap-2"
           >
@@ -176,16 +145,17 @@ export function StuntingChat() {
               className="h-11 flex-1 rounded-xl border border-input bg-white px-3.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus-visible:border-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/20"
               maxLength={500}
             />
-            <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={loading || !input.trim()}>
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+            <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={typing || !input.trim()}>
+              {typing ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
             </Button>
           </form>
 
           <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
             <Info className="mt-0.5 h-3 w-3 shrink-0" />
             <span>
-              Pertanyaan dikirim ke layanan AI (Claude) untuk dijawab — jangan masukkan data
-              pribadi. Edukasi, bukan diagnosis. Prediksi stunting tetap berjalan 100% di perangkat.
+              Berbasis informasi terkurasi (WHO/Kemenkes), berjalan <strong>di perangkat</strong> —
+              gratis &amp; tanpa internet. Bersifat edukasi, bukan diagnosis. Untuk kondisi khusus,
+              konsultasikan ke posyandu/dokter.
             </span>
           </p>
         </div>

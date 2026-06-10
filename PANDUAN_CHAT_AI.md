@@ -1,82 +1,50 @@
-# 💬 Panduan Mengaktifkan Asisten AI Gizi (Chat)
+# 💬 Asisten Edukasi Stunting (Tanya–Jawab)
 
-Fitur chat memungkinkan pengguna bertanya tips mencegah stunting & gizi balita.
-Chat ditenagai **Claude (Anthropic)** dan dipanggil lewat **Cloudflare Pages
-Function** (`/api/chat`) supaya **API key tetap rahasia di server** — tidak
-pernah ikut terkirim ke peramban pengguna.
+Di atas form tab **Deteksi** ada kotak **"Asisten Edukasi Stunting"**. Pengguna
+bisa bertanya tips mencegah stunting & gizi balita, lalu mendapat jawaban
+edukatif.
 
-> Tanpa langkah di bawah, kotak chat tetap muncul tetapi akan menampilkan
-> "Fitur chat belum diaktifkan". Prediksi stunting (Random Forest) tetap
-> berjalan normal 100% di perangkat tanpa perlu API key.
+## ✅ Gratis, tanpa setup, tanpa API key
 
----
+Fitur ini **berjalan 100% di perangkat** (di dalam peramban) memakai **basis
+pengetahuan terkurasi** yang dirangkum dari pedoman **WHO** dan **Kemenkes RI**.
+Artinya:
 
-## Arsitektur singkat
+- **Gratis** — tidak perlu API key, token, atau langganan apa pun.
+- **Tanpa internet** — jawaban tersedia bahkan saat offline.
+- **Privat** — pertanyaan tidak dikirim ke server mana pun.
+- **Tidak mengarang** — jawaban berasal dari materi yang sudah disusun, bukan
+  dibuat-buat oleh model.
 
+**Tidak ada langkah konfigurasi.** Begitu situs ter-deploy, kotak asisten
+langsung berfungsi.
+
+## 🧩 Cara kerja singkat
+
+- Materi pengetahuan: `web/src/lib/stunting-knowledge.ts` (±19 topik:
+  pencegahan, ASI, MPASI, protein hewani, jarak kehamilan, gizi ibu/KEK,
+  posyandu, sanitasi, imunisasi, 1000 HPK, membaca Z-Score, dll).
+- Komponen UI: `web/src/components/StuntingChat.tsx` — mencocokkan pertanyaan
+  pengguna dengan topik paling relevan (pencocokan kata kunci) lalu menampilkan
+  jawaban + tombol saran topik.
+
+## ✍️ Menambah / mengubah jawaban
+
+Edit array `KNOWLEDGE` di `web/src/lib/stunting-knowledge.ts`. Tiap topik:
+
+```ts
+{
+  id: "asi",
+  title: "ASI eksklusif",           // teks tombol saran
+  keywords: ["asi", "menyusui"],    // kata kunci pemicu
+  answer: "ASI eksklusif = ...",    // jawaban (boleh multi-baris)
+}
 ```
-Pengguna (browser)  ─POST /api/chat─►  Cloudflare Pages Function
-                                         (web/functions/api/chat.ts)
-                                              │  pakai ANTHROPIC_API_KEY (rahasia)
-                                              ▼
-                                       Anthropic Claude API
-```
 
-- File fungsi: `web/functions/api/chat.ts` (sudah disertakan).
-- Model: `claude-opus-4-8`.
-- Kunci API disimpan sebagai **secret** Cloudflare bernama `ANTHROPIC_API_KEY`.
+Tambah entri baru atau perbaiki `answer`, lalu `npm run build` dan deploy ulang.
 
----
+## ℹ️ Catatan
 
-## Langkah 1 — Buat API key Anthropic
-
-1. Buka **https://console.anthropic.com** lalu masuk/daftar.
-2. Masuk ke **Settings → API Keys → Create Key**.
-3. Salin kunci (mulai dengan `sk-ant-...`). Simpan baik-baik.
-4. Pastikan akun punya saldo/kredit (chat memakai token berbayar).
-
-## Langkah 2 — Tambahkan secret di Cloudflare Pages
-
-1. Buka **Cloudflare Dashboard → Workers & Pages → (proyek kamu)**.
-2. **Settings → Environment variables** (atau **Variables and Secrets**).
-3. Tambah variabel **Production** (dan Preview jika perlu):
-   - **Name:** `ANTHROPIC_API_KEY`
-   - **Value:** `sk-ant-...` (kunci dari Langkah 1)
-   - Klik **Encrypt** agar tersimpan sebagai secret.
-4. **Save**.
-
-## Langkah 3 — Deploy ulang
-
-1. Cloudflare otomatis build saat ada push ke `main`. Setelah menambahkan
-   secret, jalankan **Retry deployment** / deploy ulang agar secret terbaca.
-2. Pastikan setting build tetap: Root `web`, Build command `npm run build`,
-   Output `dist`. Folder `web/functions/` otomatis terdeteksi sebagai
-   Pages Functions.
-3. Buka situs → tab Deteksi → buka kotak **"Tanya Asisten AI Gizi"** → coba
-   bertanya. Jika menjawab, berarti sudah aktif. 🎉
-
----
-
-## Troubleshooting
-
-| Masalah | Solusi |
-| --- | --- |
-| "Fitur chat belum diaktifkan" | Secret `ANTHROPIC_API_KEY` belum ada / belum deploy ulang |
-| "Asisten sedang tidak tersedia" | Kunci salah, kredit habis, atau rate limit — cek di console Anthropic |
-| Error fungsi saat build | Pastikan folder `web/functions/` ikut ter-deploy (Root directory = `web`) |
-| Ingin model lebih murah | Ubah `MODEL` di `web/functions/api/chat.ts` ke `claude-haiku-4-5` |
-
----
-
-## Catatan privasi & etika
-
-- **Hanya teks pertanyaan** yang dikirim ke layanan AI; data anak pada form
-  prediksi **tidak** dikirim. UI sudah menampilkan peringatan agar pengguna
-  tidak memasukkan data pribadi.
-- Asisten dibatasi pada topik gizi/stunting dan **tidak memberi diagnosis**.
-- Karena chat memanggil API berbayar, pertimbangkan menambah pembatasan
-  (mis. Cloudflare Turnstile / rate limit) bila situs ramai.
-
-## Catatan biaya
-
-Tiap pertanyaan memakai token Claude (input + output). Jawaban dibatasi singkat
-(maks 1024 token output) untuk menghemat. Pantau penggunaan di console Anthropic.
+Asisten ini bersifat **edukasi, bukan diagnosis**. Untuk kondisi spesifik anak,
+arahkan pengguna berkonsultasi ke **posyandu, puskesmas, dokter anak, atau ahli
+gizi**.
