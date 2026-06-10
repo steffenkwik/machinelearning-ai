@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, SegmentItem } from "@/components/ui/radio-group";
 import { ResultPanel, type AnalysisResult } from "@/components/ResultPanel";
 import { PhotoAnalysis } from "@/components/PhotoAnalysis";
+import { StuntingChat } from "@/components/StuntingChat";
 import { STATUS_ORDER } from "@/lib/content";
 import { toFeatureVector, type FormValues, type GiziIbu } from "@/lib/encode";
 import { hazZScore, whoStats, type Sex } from "@/lib/who";
@@ -117,7 +118,11 @@ export function DetectionTab({ status, predict }: Props) {
         : "Analisis risiko stunting";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
+    <div className="space-y-6">
+      {/* ---------------- AI chat (above the form) ---------------- */}
+      <StuntingChat />
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
       {/* ---------------- Form ---------------- */}
       <div className="space-y-5">
         <Card>
@@ -329,6 +334,7 @@ export function DetectionTab({ status, predict }: Props) {
             </CardContent>
           </Card>
         )}
+      </div>
       </div>
     </div>
   );
