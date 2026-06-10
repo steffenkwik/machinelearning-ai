@@ -27,16 +27,32 @@ export function StuntingChat() {
   function ask(text: string) {
     const q = text.trim();
     if (!q || typing) return;
-    setMessages((prev) => [...prev, { role: "user", content: q }]);
+    const next: Msg[] = [...messages, { role: "user", content: q }];
+    setMessages(next);
     setInput("");
     setTyping(true);
-    const { answer } = findAnswer(q);
-    // Jeda singkat agar terasa natural (berjalan di perangkat, instan).
-    window.setTimeout(() => {
+    void (async () => {
+      let answer = "";
+      try {
+        // 1) Coba LLM gratis (lewat fungsi server, tanpa API key).
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ messages: next }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          answer = (data?.text || "").trim();
+        }
+      } catch {
+        /* abaikan — pakai cadangan lokal */
+      }
+      // 2) Cadangan: basis pengetahuan lokal (selalu tersedia, offline).
+      if (!answer) answer = findAnswer(q).answer;
       setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
       setTyping(false);
       inputRef.current?.focus();
-    }, 350);
+    })();
   }
 
   return (
@@ -56,7 +72,7 @@ export function StuntingChat() {
               Asisten Edukasi Stunting
             </span>
             <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold text-brand-700">
-              Gratis · di perangkat
+              AI · Gratis
             </span>
           </span>
           <span className="mt-0.5 block truncate text-xs text-muted-foreground">
@@ -120,7 +136,7 @@ export function StuntingChat() {
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s.q}
-                  onClick={() => ask(s.full)}
+                  onClick={() => ask(s.q)}
                   className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-50"
                 >
                   {s.q}
@@ -153,9 +169,9 @@ export function StuntingChat() {
           <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
             <Info className="mt-0.5 h-3 w-3 shrink-0" />
             <span>
-              Berbasis informasi terkurasi (WHO/Kemenkes), berjalan <strong>di perangkat</strong> —
-              gratis &amp; tanpa internet. Bersifat edukasi, bukan diagnosis. Untuk kondisi khusus,
-              konsultasikan ke posyandu/dokter.
+              Ditenagai <strong>AI gratis</strong> (tanpa biaya/token); bila layanan sibuk, jawaban
+              memakai basis pengetahuan lokal. Pertanyaan dikirim ke layanan AI — jangan masukkan data
+              pribadi. Bersifat edukasi, bukan diagnosis. Prediksi stunting tetap 100% di perangkat.
             </span>
           </p>
         </div>

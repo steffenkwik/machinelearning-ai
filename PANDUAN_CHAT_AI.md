@@ -1,50 +1,51 @@
-# 💬 Asisten Edukasi Stunting (Tanya–Jawab)
+# 💬 Asisten Edukasi Stunting (Chat AI Gratis)
 
 Di atas form tab **Deteksi** ada kotak **"Asisten Edukasi Stunting"**. Pengguna
-bisa bertanya tips mencegah stunting & gizi balita, lalu mendapat jawaban
-edukatif.
+bisa bertanya apa saja (utamanya stunting & gizi balita) dan mendapat jawaban
+dari **LLM gratis**.
 
-## ✅ Gratis, tanpa setup, tanpa API key
+## ✅ Gratis, tanpa API key, tanpa setup
 
-Fitur ini **berjalan 100% di perangkat** (di dalam peramban) memakai **basis
-pengetahuan terkurasi** yang dirangkum dari pedoman **WHO** dan **Kemenkes RI**.
-Artinya:
+- **LLM gratis & keyless** — memakai **Pollinations** (`text.pollinations.ai`),
+  dipanggil lewat **Cloudflare Pages Function** (`/api/chat`) dari sisi server,
+  sehingga **tidak perlu API key, token, atau langganan** apa pun.
+- **Selalu hidup** — bila layanan gratis sedang sibuk/gagal, chat otomatis
+  memakai **basis pengetahuan lokal** (`stunting-knowledge.ts`) sebagai cadangan,
+  jadi tidak pernah mati.
+- **Tidak ada langkah konfigurasi.** Begitu situs ter-deploy, chat langsung
+  berfungsi.
 
-- **Gratis** — tidak perlu API key, token, atau langganan apa pun.
-- **Tanpa internet** — jawaban tersedia bahkan saat offline.
-- **Privat** — pertanyaan tidak dikirim ke server mana pun.
-- **Tidak mengarang** — jawaban berasal dari materi yang sudah disusun, bukan
-  dibuat-buat oleh model.
+## 🧩 Cara kerja
 
-**Tidak ada langkah konfigurasi.** Begitu situs ter-deploy, kotak asisten
-langsung berfungsi.
-
-## 🧩 Cara kerja singkat
-
-- Materi pengetahuan: `web/src/lib/stunting-knowledge.ts` (±19 topik:
-  pencegahan, ASI, MPASI, protein hewani, jarak kehamilan, gizi ibu/KEK,
-  posyandu, sanitasi, imunisasi, 1000 HPK, membaca Z-Score, dll).
-- Komponen UI: `web/src/components/StuntingChat.tsx` — mencocokkan pertanyaan
-  pengguna dengan topik paling relevan (pencocokan kata kunci) lalu menampilkan
-  jawaban + tombol saran topik.
-
-## ✍️ Menambah / mengubah jawaban
-
-Edit array `KNOWLEDGE` di `web/src/lib/stunting-knowledge.ts`. Tiap topik:
-
-```ts
-{
-  id: "asi",
-  title: "ASI eksklusif",           // teks tombol saran
-  keywords: ["asi", "menyusui"],    // kata kunci pemicu
-  answer: "ASI eksklusif = ...",    // jawaban (boleh multi-baris)
-}
+```
+Pengguna ─POST /api/chat─► Cloudflare Pages Function ─► Pollinations (LLM gratis)
+                                   │ gagal/sibuk
+                                   ▼
+                          Klien pakai basis pengetahuan lokal (offline)
 ```
 
-Tambah entri baru atau perbaiki `answer`, lalu `npm run build` dan deploy ulang.
+- Fungsi server: `web/functions/api/chat.ts` (proxy ke LLM gratis; mencoba
+  endpoint chat lalu endpoint teks; system prompt difokuskan ke stunting/gizi).
+- UI: `web/src/components/StuntingChat.tsx` — kirim ke `/api/chat`, jika gagal
+  pakai `findAnswer()` dari basis pengetahuan lokal.
+- Basis pengetahuan cadangan: `web/src/lib/stunting-knowledge.ts` (±19 topik).
 
-## ℹ️ Catatan
+## ⚙️ Opsional
 
-Asisten ini bersifat **edukasi, bukan diagnosis**. Untuk kondisi spesifik anak,
-arahkan pengguna berkonsultasi ke **posyandu, puskesmas, dokter anak, atau ahli
-gizi**.
+- **Ganti model** LLM: ubah `model: "openai"` di `web/functions/api/chat.ts`
+  ke model Pollinations lain (mis. `"mistral"`).
+- **Ingin pakai Claude/OpenAI berbayar** (lebih stabil): ganti isi fungsi
+  dengan panggilan ke API tersebut dan simpan kuncinya sebagai secret Cloudflare
+  (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`).
+- **Tambah/ubah jawaban cadangan**: edit array `KNOWLEDGE` di
+  `stunting-knowledge.ts`.
+
+## ℹ️ Catatan privasi & etika
+
+- Hanya **teks pertanyaan** yang dikirim ke layanan AI; **data anak pada form
+  prediksi tidak dikirim** (prediksi tetap 100% di perangkat).
+- UI sudah mengingatkan agar pengguna tidak memasukkan data pribadi.
+- Bersifat **edukasi, bukan diagnosis** — kondisi khusus diarahkan ke
+  posyandu/puskesmas/dokter.
+- Layanan gratis bisa berubah/terbatas sewaktu-waktu; cadangan lokal memastikan
+  fitur tetap berguna.

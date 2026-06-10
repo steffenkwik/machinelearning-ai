@@ -122,7 +122,7 @@ export const FAIRNESS_ROWS = [
 ];
 
 export const ETHICS = [
-  { title: "Privasi Data", body: "Aplikasi berjalan 100% di perangkat Anda — prediksi stunting maupun asisten edukasi tidak mengirim data ke server. Semua perhitungan dilakukan lokal dan langsung dilupakan setelah selesai." },
+  { title: "Privasi Data", body: "Prediksi stunting berjalan 100% di perangkat Anda — data anak tidak dikirim ke server. Asisten chat memakai LLM gratis: hanya teks pertanyaan yang dikirim ke layanan AI (dengan cadangan basis pengetahuan lokal bila layanan sibuk), dan pengguna diingatkan agar tidak memasukkan data pribadi." },
   { title: "Fairness", body: "Akurasi laki-laki 89,30% vs perempuan 87,46%. Disparitas 1,83% — di bawah ambang industri 5%." },
   { title: "Transparansi", body: "Confidence score, probabilitas tiap kelas, dan catatan faktor risiko selalu ditampilkan — bukan kotak hitam." },
   { title: "Keamanan", body: "Disclaimer jelas: hasil adalah skrining awal, bukan diagnosis medis. Kasus berat diarahkan ke fasilitas kesehatan." },
