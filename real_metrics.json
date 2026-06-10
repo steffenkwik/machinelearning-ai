@@ -1,0 +1,51 @@
+{
+  "n_samples": 55367,
+  "n_train": 44293,
+  "n_test": 11074,
+  "features": [
+    "Umur (bulan)",
+    "Jenis Kelamin",
+    "Tinggi Badan (cm)"
+  ],
+  "classes": [
+    "Normal",
+    "Stunted",
+    "Severely Stunted",
+    "Tinggi"
+  ],
+  "accuracy": 99.39,
+  "f1_macro": 99.4,
+  "precision_macro": 99.39,
+  "recall_macro": 99.41,
+  "cv_mean": 99.18,
+  "cv_std": 0.12,
+  "benchmark": {
+    "Random Forest": {
+      "acc": 99.39,
+      "f1": 99.4
+    },
+    "Decision Tree": {
+      "acc": 98.86,
+      "f1": 98.86
+    },
+    "Logistic Reg.": {
+      "acc": 75.56,
+      "f1": 75.56
+    },
+    "KNN (k=7)": {
+      "acc": 98.93,
+      "f1": 98.93
+    },
+    "Naive Bayes": {
+      "acc": 42.87,
+      "f1": 40.9
+    }
+  },
+  "class_distribution": {
+    "Normal": 14218,
+    "Stunted": 13677,
+    "Severely Stunted": 13744,
+    "Tinggi": 13728
+  },
+  "report": "                  precision    recall  f1-score   support\n\n          Normal      0.999     0.980     0.990      2844\nSeverely Stunted      0.999     0.998     0.998      2749\n         Stunted      0.988     0.999     0.993      2735\n          Tinggi      0.990     0.999     0.995      2746\n\n        accuracy                          0.994     11074\n       macro avg      0.994     0.994     0.994     11074\n    weighted avg      0.994     0.994     0.994     11074\n"
+}

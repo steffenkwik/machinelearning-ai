@@ -11,43 +11,34 @@
 
 ## 🔴 BAGIAN 1 — DATASET (paling mungkin & paling kritis)
 
+> Catatan dosen sudah ditindaklanjuti: kini ada **dataset NYATA Indonesia** untuk validasi.
+
 ### Q1. Datasetnya dari mana? Berapa sampel?
-**Jawaban singkat:** "Dataset berisi **25.000 sampel** dan bersifat **sintetis (simulasi)** yang saya
-bangkitkan sendiri di notebook, dengan distribusi yang **di-*anchor* ke WHO Child Growth Standards
-2006** dan literatur stunting Indonesia. Jadi ini **proof-of-concept**, bukan data klinis nyata."
+**Jawaban singkat:** "Saya pakai **dua sumber**. (1) **Dataset NYATA** — *Stunting Toddler (Balita)
+Detection* (Kaggle/GitHub), berbasis kondisi anak Indonesia & WHO, **55.367 sampel** (umur, jenis
+kelamin, tinggi badan → status gizi). Ini dipakai untuk **melatih & memvalidasi** model inti.
+(2) **Dataset multi-faktor** (WHO 2006 + literatur) untuk prototipe 7 faktor, karena faktor maternal
+belum tersedia di dataset publik."
 
 **Poin pendukung:**
-- Tinggi & berat di-*generate* dari **median ± standar deviasi WHO 2006** per umur & jenis kelamin (data WHO asli).
-- Variabel demografis/maternal (gender 51,5%:48,5%, gizi ibu 55/30/15%, jarak kehamilan, usia nikah) memakai distribusi normal/realistis sesuai literatur (SSGI 2024, BKKBN "4 Terlalu").
-- **Label** "Status Gizi" dihitung fungsi berbasis aturan: Z-score HAZ WHO (stunting = HAZ < −2 SD) dikurangi skor risiko dari berat, jarak kehamilan, usia nikah, gizi ibu.
+- Pada dataset nyata, Random Forest mencapai **akurasi 99,39%**, F1 99,40%, CV 99,18% ± 0,12%.
+- Kelas seimbang (≈ tiap kelas), jadi metrik tidak bias.
 
-### Q2. Kenapa pakai data sintetis, bukan data asli?
-**Jawaban singkat:** "Data stunting nyata berisi informasi kesehatan anak yang **sensitif dan sulit
-diakses publik** karena privasi & etika. Untuk lingkup tugas (proof-of-concept teknik AI), saya
-gunakan data sintetis yang **dilandaskan standar WHO dan literatur**, sehingga pola yang dipelajari
-tetap masuk akal secara medis."
+### Q2. Kenapa dulu sintetis, sekarang nyata?
+**Jawaban singkat:** "Sesuai masukan dosen, saya tambahkan **dataset nyata Indonesia** untuk
+membuktikan model bekerja pada kondisi riil. Dataset multi-faktor sintetis tetap dipakai hanya untuk
+prototipe 7 faktor (faktor maternal tidak ada di data publik), dan saya nyatakan transparan."
 
-**Poin pendukung:**
-- Menghindari masalah privasi/perizinan data balita nyata.
-- Bisa mengontrol keseimbangan kelas & jumlah sampel untuk eksperimen.
-- Jujur soal batas: model **mempelajari aturan yang dikodekan**, jadi performa di dunia nyata harus diuji ulang.
+### Q3. Apakah model cuma "menghafal"?
+**Jawaban singkat:** "Tidak. Pada **data nyata**, model diuji pada **11.074 sampel terpisah** yang
+tidak dipakai saat latih, dan tetap akurat (99,4%) dengan **5-fold cross-validation** stabil
+(±0,12%) — bukti generalisasi, bukan menghafal."
 
-### Q3. Kalau labelnya dari rumus, bukankah model cuma "menghafal rumus"?
-**Jawaban singkat:** "Betul, dan saya transparan soal itu. Model belajar **mengaproksimasi aturan
-medis WHO + faktor risiko literatur**. Nilainya: membuktikan bahwa **7 faktor bisa dikombinasikan**
-oleh ML menjadi satu prediksi, dan pipeline-nya (training → deploy di peramban) berjalan. Untuk
-produksi, langkah berikutnya adalah melatih ulang dengan **data posyandu/SSGI nyata**."
+### Q4. Bagaimana validasinya?
+**Jawaban singkat:** "Split **80% latih : 20% uji** terstratifikasi + **5-fold CV**. Saya juga
+**benchmark** vs Decision Tree, KNN, Regresi Logistik, dan Naive Bayes — Random Forest unggul
+(lihat grafik benchmarking)."
 
-**Poin pendukung:**
-- Label tidak sepenuhnya deterministik: ada **noise** dari sebaran tinggi (±2,2 SD) & faktor maternal yang menggeser Z-score, sehingga ada batas kelas yang kabur (lihat kesalahan antar kelas bertetangga di confusion matrix).
-- Ini lazim untuk *educational proof-of-concept*; yang dinilai adalah **penguasaan teknik AI**, bukan klaim klinis.
-
-### Q4. Bagaimana cara memvalidasi kalau punya data nyata?
-**Jawaban singkat:** "Latih ulang model pada data lapangan (mis. data posyandu/SSGI), pakai
-**train/validation/test terpisah**, evaluasi dengan akurasi, F1, dan **k-fold cross-validation**,
-serta uji **fairness** antar kelompok. Idealnya juga validasi eksternal di wilayah berbeda."
-
----
 
 ## 🟢 BAGIAN 2 — ALGORITMA RANDOM FOREST (tekankan ini)
 
@@ -152,25 +143,23 @@ perangkat), dan dapat luring**. Tidak perlu biaya server, cocok untuk skala laya
 
 ---
 
-## 🟡 BAGIAN 6 — FITUR FOTO (jika ditanya)
+## 🟡 BAGIAN 6 — DATASET NYATA & BENCHMARK (tekankan ini)
 
-### Q20. Fitur analisis foto itu mendeteksi stunting dari foto?
-**Jawaban singkat:** "**Tidak** — dan saya sengaja jujur soal ini. Stunting itu **tinggi-untuk-umur**
-yang **tak bisa diukur dari foto 2D**. Fitur foto hanya memperkirakan **proporsi tubuh**
-(kurus/normal/gemuk) memakai MediaPipe, lalu **menggeser probabilitas akhir secara terbatas (maks
-±10 poin)** dan transparan. Random Forest **tidak** dilatih ulang dengan foto."
+### Q20. Apa bukti aplikasi pakai data nyata?
+**Jawaban singkat:** "Model inti dilatih & divalidasi pada **dataset stunting balita nyata
+Indonesia (55.367 sampel)** berbasis WHO, mencapai **akurasi 99,4%** dan **mengungguli** Decision
+Tree, KNN, Regresi Logistik, serta Naive Bayes pada benchmark. Datasetnya open-source dan sumbernya
+saya cantumkan."
 
-**Poin pendukung:**
-- Mengukur ketebalan anggota tubuh dari siluet, dinormalisasi ke panjang tulang (*scale-* & *pose-invariant*).
-- Diberi label **Eksperimental**; ini justru memperkuat poin etika (transparansi & kejujuran).
+**Catatan:** Fitur kamera/foto **sudah dihapus** sesuai masukan dosen (MediaPipe sulit mengukur
+ketebalan tubuh secara andal).
 
----
 
 ## ⚫ BAGIAN 7 — PERTANYAAN "JEBAKAN" / KRITIS
 
 ### Q21. Apa keterbatasan utama proyek ini?
 **Jawaban singkat:** "Tiga: (1) **dataset sintetis** — perlu validasi data nyata; (2) model belajar
-aturan yang dikodekan, bukan temuan epidemiologis baru; (3) fitur foto masih eksperimental & ambangnya
+aturan WHO yang dikodekan pada data multi-faktor (data nyata mengatasinya); (3) faktor maternal nyata
 perlu kalibrasi. Semua ini saya nyatakan terbuka di laporan."
 
 ### Q22. Apa kontribusi/keunikan proyek dibanding aplikasi stunting lain?
@@ -185,7 +174,7 @@ prevalensi (19,8%, SSGI 2024)."
 
 ### Q24. Kalau diberi waktu lebih, apa pengembangan selanjutnya?
 **Jawaban singkat:** "(1) Latih ulang dengan **data posyandu/SSGI nyata** + validasi klinis; (2)
-kalibrasi & validasi modul foto dengan foto berlabel; (3) tambah bahasa daerah & mode offline-PWA;
+melengkapi data faktor maternal nyata; (3) tambah bahasa daerah & mode offline-PWA;
 (4) integrasi rekomendasi gizi yang lebih personal."
 
 ### Q25. Berapa lama waktu inferensi & ukuran model?

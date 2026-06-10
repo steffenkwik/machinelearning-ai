@@ -5,7 +5,6 @@ import {
   Sparkles,
   TriangleAlert,
   Info,
-  ScanFace,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -26,8 +25,6 @@ export interface AnalysisResult {
   probabilities: number[];
   zScore: number;
   values: FormValues;
-  fusion?: import("@/lib/fusion").FusionResult;
-  photoBuild?: import("@/lib/pose").BuildCategory;
 }
 
 const TONE: Record<
@@ -119,49 +116,6 @@ export function ResultPanel({ result }: { result: AnalysisResult }) {
           </div>
         </div>
       </div>
-
-      {/* Photo fusion (transparent before → after) */}
-      {result.fusion && (
-        <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-5">
-          <div className="mb-2 flex items-center gap-2">
-            <ScanFace className="h-4 w-4 text-sky-700" />
-            <h4 className="font-display text-sm font-bold text-sky-900">
-              Penyesuaian dari Analisis Foto
-            </h4>
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-              Eksperimental
-            </span>
-          </div>
-          <p className="text-xs text-sky-900/80">
-            Proporsi tubuh terdeteksi <strong>{result.photoBuild}</strong>. Risiko stunting RF
-            disesuaikan secara transparan{result.fusion.capped ? " (dibatasi maks ±10 poin)" : ""}:
-          </p>
-          <div className="mt-3 flex items-center gap-3 text-sm font-semibold">
-            <span className="rounded-lg bg-white px-2.5 py-1 font-mono text-muted-foreground">
-              {(result.fusion.riskBefore * 100).toFixed(1)}%
-            </span>
-            <span className="text-sky-700">→</span>
-            <span className="rounded-lg bg-white px-2.5 py-1 font-mono text-sky-900">
-              {(result.fusion.riskAfter * 100).toFixed(1)}%
-            </span>
-            <span
-              className={cn(
-                "text-xs font-bold",
-                result.fusion.direction === "naik"
-                  ? "text-amber-600"
-                  : result.fusion.direction === "turun"
-                    ? "text-brand-600"
-                    : "text-muted-foreground"
-              )}
-            >
-              {result.fusion.shiftPP >= 0 ? "▲" : "▼"} {Math.abs(result.fusion.shiftPP).toFixed(1)} pt
-            </span>
-          </div>
-          <p className="mt-2 text-[11px] text-sky-900/70">
-            Model Random Forest 7-faktor tidak diubah — foto hanya menggeser probabilitas akhir.
-          </p>
-        </div>
-      )}
 
       {/* Probabilities */}
       <Card>

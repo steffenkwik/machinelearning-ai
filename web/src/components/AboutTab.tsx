@@ -7,7 +7,7 @@ const INFO = [
   {
     icon: Target,
     title: "Masalah yang diatasi",
-    body: "Prevalensi stunting Indonesia 19,8% (SSGI 2024, Kemenkes RI) — sekitar 4,4 juta balita. Stunting dipicu banyak faktor yang saling terkait, bukan hanya tinggi badan.",
+    body: "Prevalensi stunting Indonesia 21,5% (SKI/SSGI 2023, Kemenkes RI) — sekitar 1 dari 5 balita, masih jauh dari target nasional 14% (Perpres 72/2021). Stunting dipicu banyak faktor yang saling terkait, bukan hanya tinggi badan.",
   },
   {
     icon: Lightbulb,

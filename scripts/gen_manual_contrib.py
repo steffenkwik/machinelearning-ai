@@ -81,11 +81,11 @@ def manual(base):
     s.append(P("StuntCare AI — Aplikasi Web Deteksi Dini Stunting (React + Vite + ONNX Runtime Web)", "sub"))
 
     s.append(P("1. Tentang Aplikasi", "h1"))
-    s.append(P("StuntCare AI adalah aplikasi web statis yang memprediksi risiko stunting balita dari 7 "
-        "faktor menggunakan model Random Forest (akurasi 88,40%). Model dijalankan <b>100% di peramban</b> "
+    s.append(P("StuntCare AI adalah aplikasi web statis yang memprediksi risiko stunting balita "
+        "menggunakan model Random Forest. Model inti divalidasi pada dataset stunting balita nyata "
+        "Indonesia (55.367 sampel) dengan akurasi 99,4%. Model dijalankan <b>100% di peramban</b> "
         "pengguna melalui ONNX Runtime Web, sehingga gratis, cepat, dapat luring, dan data anak tidak "
-        "dikirim ke server. Tersedia pula modul opsional analisis foto (eksperimental) untuk "
-        "memperkirakan proporsi tubuh."))
+        "dikirim ke server. Tersedia pula asisten edukasi tanya-jawab pencegahan stunting."))
 
     s.append(P("2. Kebutuhan Sistem (Dependencies)", "h1"))
     s.append(bullets([
@@ -94,39 +94,36 @@ def manual(base):
         "Untuk konversi ulang model (opsional): Python 3.11+, scikit-learn, skl2onnx.",
         "Semua dependency JavaScript tercantum di <font face='Courier'>web/package.json</font> dan "
         "terpasang otomatis lewat <font face='Courier'>npm install</font> (React, Vite, TypeScript, "
-        "Tailwind, onnxruntime-web, @mediapipe/tasks-vision, dll.).",
+        "Tailwind, onnxruntime-web, dll.).",
     ]))
 
     s.append(P("3. Struktur Proyek", "h1"))
     s.append(code(
         "machinelearning-ai/\n"
-        "|- web/                       # Aplikasi web baru (yang di-deploy)\n"
-        "|  |- public/                 #   model_stunting.onnx, model MediaPipe, favicon\n"
+        "|- web/                       # Aplikasi web (yang di-deploy)\n"
+        "|  |- public/                 #   model_stunting.onnx, favicon\n"
         "|  |- src/                    #   React + TypeScript\n"
         "|  |  |- inference/           #     worker.ts (ONNX di Web Worker), useModel.ts\n"
-        "|  |  |- lib/                 #     who.ts, pose.ts, fusion.ts, content.ts\n"
-        "|  |  |- components/          #     Hero, DetectionTab, ResultPanel, PhotoAnalysis\n"
-        "|  |- scripts/                #   copy WASM saat build + unit test\n"
+        "|  |  |- lib/                 #     who.ts, encode.ts, content.ts, stunting-knowledge.ts\n"
+        "|  |  |- components/          #     Hero, DetectionTab, ResultPanel, StuntingChat\n"
         "|  |- package.json\n"
-        "|- 01_Stunting_ML_Training.ipynb   # Notebook pelatihan Random Forest\n"
-        "|- model_stunting.pkl              # Model asli scikit-learn\n"
-        "|- app.py                          # Purwarupa lama (Streamlit) - referensi\n"
-        "|- dataset_stunting.csv            # Dataset 25.000 sampel"))
+        "|- 01_Stunting_ML_Training.ipynb   # Notebook pelatihan (multi-faktor)\n"
+        "|- scripts/train_real.py           # Latih & validasi di dataset NYATA\n"
+        "|- dataset_stunting_real.csv       # Dataset NYATA Indonesia (55.367)\n"
+        "|- dataset_stunting.csv            # Dataset multi-faktor (25.000)\n"
+        "|- model_stunting.pkl              # Model scikit-learn\n"
+        "|- app.py                          # Purwarupa lama (Streamlit) - referensi"))
 
     s.append(P("4. Menjalankan Secara Lokal (Mode Pengembangan)", "h1"))
     s.append(code(
         "cd web\n"
         "npm install        # pasang semua dependency (sekali saja)\n"
         "npm run dev        # buka http://localhost:5173"))
-    s.append(P("Perintah <font face='Courier'>npm run dev</font> otomatis menyalin runtime WASM MediaPipe "
-        "dari node_modules (lihat skrip <font face='Courier'>predev</font>)."))
-
     s.append(P("5. Build Produksi", "h1"))
     s.append(code(
         "cd web\n"
         "npm run build      # hasil di folder web/dist\n"
-        "npm run preview    # uji hasil build di http://localhost:4173\n"
-        "npm run test       # (opsional) unit test detektor foto & fusion"))
+        "npm run preview    # uji hasil build di http://localhost:4173"))
 
     s.append(P("6. Deploy ke Cloudflare Pages", "h1"))
     s.append(P("Opsi A — hubungkan ke GitHub (otomatis tiap push). Atur pada dashboard:"))
@@ -145,11 +142,10 @@ def manual(base):
 
     s.append(P("7. Cara Menggunakan Aplikasi", "h1"))
     s.append(bullets([
-        "Buka aplikasi, isi <b>7 faktor</b> pada tab Deteksi (data anak + data ibu/kehamilan).",
+        "Buka aplikasi, isi faktor pada tab Deteksi (data anak + data ibu/kehamilan).",
         "Tekan <b>Analisis</b>; model Random Forest memproses di perangkat dan menampilkan status gizi, "
         "tingkat keyakinan, probabilitas tiap kelas, Z-Score WHO, catatan risiko, dan rekomendasi.",
-        "Opsional: gunakan <b>Analisis Foto AI</b> (unggah foto atau kamera) untuk estimasi proporsi tubuh; "
-        "hasilnya menyesuaikan probabilitas akhir secara terbatas (maks ±10 poin) dan transparan.",
+        "Gunakan <b>Asisten Edukasi Stunting</b> di atas form untuk bertanya tips pencegahan stunting.",
     ]))
 
     s.append(P("8. Catatan Teknis", "h1"))
@@ -158,6 +154,8 @@ def manual(base):
         "<font face='Courier'>web/public/model_stunting.onnx</font> dengan skl2onnx (parity terverifikasi).",
         "Inferensi ONNX berjalan di <b>Web Worker</b> dengan WASM single-thread agar UI tidak membeku dan "
         "tanpa perlu header COOP/COEP.",
+        "Latih & validasi pada dataset NYATA: <font face='Courier'>python scripts/train_real.py</font> "
+        "(memakai <font face='Courier'>dataset_stunting_real.csv</font>, menghasilkan metrik + grafik).",
         "Konversi ulang model (jika perlu):",
     ]))
     s.append(code(
@@ -180,7 +178,7 @@ def manual(base):
         ["Masalah", "Solusi"],
         ["Build gagal: output dir not found", "Set Build output directory = dist (Root = web)"],
         ["Model lama tampil di Cloudflare", "Pastikan branch produksi = main; hard refresh (Ctrl+Shift+R)"],
-        ["Kamera tidak terbuka", "Beri izin kamera; situs harus via HTTPS (Cloudflare otomatis HTTPS)"],
+        ["Chat tidak menjawab", "Layanan AI gratis sibuk; otomatis pakai basis pengetahuan lokal"],
         ["npm install lambat/gagal", "Ulangi; pastikan koneksi internet stabil"],
     ], [6.3*cm, 8.7*cm]))
     make_doc(os.path.join(base,"Petunjuk_Instalasi_StuntCare_AI.pdf"),
@@ -203,17 +201,19 @@ def contribution(base):
             C("Identifikasi masalah stunting (SDG #3); kajian WHO 2006, BKKBN 4T, jurnal stunting"),
             C("Daniel Steffen K"), "100%"],
         ["2", C("Dataset & praproses"),
-            C("Penyiapan 25.000 sampel, encoding, split 80:20, EDA"), C("Daniel Steffen K"), "100%"],
-        ["3", C("Pemodelan Random Forest"),
-            C("Pelatihan 120 trees, tuning, evaluasi (akurasi 88,40%), feature importance, audit fairness"),
+            C("Pengumpulan dataset NYATA Indonesia (55.367) + dataset multi-faktor, encoding, split 80:20, EDA"),
             C("Daniel Steffen K"), "100%"],
-        ["4", C("Purwarupa Streamlit"),
-            C("Pengembangan aplikasi awal berbasis Python/Streamlit"), C("Daniel Steffen K"), "100%"],
+        ["3", C("Pemodelan Random Forest"),
+            C("Pelatihan 120 trees, tuning, feature importance, evaluasi"),
+            C("Daniel Steffen K"), "100%"],
+        ["4", C("Validasi & benchmarking data nyata"),
+            C("Latih ulang di dataset nyata (akurasi 99,4%), benchmark vs DT/KNN/LogReg/NB, grafik hasil"),
+            C("Daniel Steffen K"), "100%"],
         ["5", C("Rebuild aplikasi web"),
             C("Konversi model ke ONNX; React + Vite + TypeScript + Tailwind; inferensi ONNX di Web Worker (di-peramban)"),
             C("Daniel Steffen K"), "100%"],
-        ["6", C("Modul analisis foto"),
-            C("MediaPipe Pose + segmentation, detektor proporsi tubuh, late-fusion transparan"),
+        ["6", C("Asisten edukasi (chat)"),
+            C("Integrasi asisten tanya-jawab pencegahan stunting (LLM gratis + basis pengetahuan lokal)"),
             C("Daniel Steffen K"), "100%"],
         ["7", C("Deployment"),
             C("Konfigurasi & deploy ke Cloudflare Pages"), C("Daniel Steffen K"), "100%"],

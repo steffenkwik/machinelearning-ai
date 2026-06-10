@@ -17,9 +17,7 @@
 |---|---|
 | `web/` | **Aplikasi web baru (yang di-deploy)** — React + Vite + ONNX |
 | `web/public/model_stunting.onnx` | Model Random Forest (hasil konversi dari `.pkl`) |
-| `web/public/mediapipe/` | Model pose untuk fitur analisis foto |
 | `web/src/inference/worker.ts` | Inferensi ONNX di **Web Worker** (anti-freeze) |
-| `web/src/lib/pose.ts`, `fusion.ts` | Detektor proporsi tubuh + late-fusion transparan |
 | `model_stunting.pkl` | Model asli scikit-learn (Random Forest 7 fitur) |
 | `01_Stunting_ML_Training.ipynb` | Notebook pelatihan model |
 | `app.py` | Purwarupa **lama (Streamlit)** — referensi |
@@ -68,7 +66,7 @@ Build produksi:
 cd web
 npm run build    # hasil di web/dist
 npm run preview  # uji hasil build
-npm run test     # (opsional) unit test detektor foto & fusion
+npm run preview  # uji hasil build secara lokal
 ```
 
 ---

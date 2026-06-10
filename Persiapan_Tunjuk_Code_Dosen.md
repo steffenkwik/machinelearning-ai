@@ -23,7 +23,8 @@
 | **Z-Score WHO** | `web/src/lib/who.ts` | `hazZScore()` |
 | **Form 7 faktor + alur prediksi** | `web/src/components/DetectionTab.tsx` | `onAnalyze()` |
 | **Tampilan hasil** | `web/src/components/ResultPanel.tsx` | — |
-| **Analisis foto (AI)** | `web/src/lib/pose.ts` + `web/src/lib/fusion.ts` | `measureBuild()`, `fuse()` |
+| **Dataset NYATA & validasi** | `dataset_stunting_real.csv` + `scripts/train_real.py` | `train_real.py` |
+| **Benchmark / grafik hasil** | `scripts/train_real.py` + `real_*.png` | grafik PNG |
 | **Chat AI** | `web/functions/api/chat.ts` + `web/src/components/StuntingChat.tsx` | — |
 | **Etika / privasi** | `web/src/components/EthicsTab.tsx` + `content.ts` | `ETHICS` |
 | **Versi lama (Streamlit)** | `app.py` | — |
@@ -95,14 +96,18 @@ from skl2onnx import to_onnx ...  # parity terverifikasi (galat 3,4e-7)
 ## 9) 🧾 Form 7 faktor & alur prediksi (React)
 **File:** `web/src/components/DetectionTab.tsx`
 - Lihat fungsi `onAnalyze()`: bangun vektor 7 fitur (`toFeatureVector`) → panggil
-  model (`predict`) → hitung z-score → (opsional) gabung sinyal foto → tampilkan.
+  model (`predict`) → hitung z-score → tampilkan.
 **Hasil:** `web/src/components/ResultPanel.tsx`.
 
-## 10) 📷 Analisis Foto (MediaPipe + fusion)
-**File:** `web/src/lib/pose.ts` (deteksi pose + `measureBuild()` proporsi tubuh),
-`web/src/lib/fusion.ts` (`fuse()` — late-fusion transparan, dibatasi ±10 poin),
-UI di `web/src/components/PhotoAnalysis.tsx`.
-**Jelaskan jujur:** foto hanya pendukung; RF tidak dilatih ulang.
+## 10) 📊 Dataset NYATA & Validasi (penting — masukan dosen)
+**File:** `dataset_stunting_real.csv` (55.367 sampel real Indonesia) + `scripts/train_real.py`.
+- `train_real.py` melatih ulang Random Forest pada data nyata, benchmark vs DT/KNN/LogReg/NB,
+  dan menghasilkan grafik: `real_confusion_matrix.png`, `real_feature_importance.png`,
+  `real_per_class_metrics.png`, `real_benchmark.png`, `real_class_distribution.png`.
+- **Tunjukkan:** jalankan `python scripts/train_real.py` atau buka grafik PNG-nya.
+- **Hasil:** akurasi 99,4% (Random Forest unggul). Sumber dataset tercantum di laporan.
+
+> Catatan: fitur kamera/foto **sudah dihapus** sesuai masukan dosen.
 
 ## 11) 💬 Chat AI (LLM gratis + cadangan lokal)
 **File:** `web/functions/api/chat.ts` (proxy ke LLM gratis tanpa API key),
